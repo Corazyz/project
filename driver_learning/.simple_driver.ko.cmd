@@ -1,0 +1,1 @@
+cmd_/home/zyz/projects/driver_learning/simple_driver.ko := ld -r  -m elf_x86_64 -z noexecstack   --build-id=sha1  -T scripts/module.lds -o /home/zyz/projects/driver_learning/simple_driver.ko /home/zyz/projects/driver_learning/simple_driver.o /home/zyz/projects/driver_learning/simple_driver.mod.o;  true

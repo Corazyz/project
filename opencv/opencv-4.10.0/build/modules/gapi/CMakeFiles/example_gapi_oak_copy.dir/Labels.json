@@ -1,0 +1,24 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/zyz/projects/opencv/opencv-4.10.0/modules/gapi/samples/oak_copy.cpp",
+			"labels" : 
+			[
+				"Main",
+				"opencv_gapi",
+				"Sample"
+			]
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"Main",
+			"opencv_gapi",
+			"Sample"
+		],
+		"name" : "example_gapi_oak_copy"
+	}
+}
