@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/test1.dir/calc.cpp.o  -o ../../bin/test1   -L/home/zyz/projects/concate_yuv/lib  -Wl,-rpath,/home/zyz/projects/concate_yuv/lib ../../lib/libcalc.a 
