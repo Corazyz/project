@@ -1,0 +1,14 @@
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/CMakeFiles/rebuild_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/CMakeFiles/edit_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/calc/CMakeFiles/rebuild_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/calc/CMakeFiles/edit_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/calc/CMakeFiles/calc.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/sort/CMakeFiles/rebuild_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/sort/CMakeFiles/edit_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/sort/CMakeFiles/sort.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/test1/CMakeFiles/rebuild_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/test1/CMakeFiles/edit_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/test1/CMakeFiles/app1.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/test2/CMakeFiles/rebuild_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/test2/CMakeFiles/edit_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/build/test2/CMakeFiles/app2.dir

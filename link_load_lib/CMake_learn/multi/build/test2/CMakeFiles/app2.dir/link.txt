@@ -1,0 +1,1 @@
+/usr/bin/cc    CMakeFiles/app2.dir/source2.c.o  -o app2   -L/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/lib  -Wl,-rpath,/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/lib ../sort/libsort.a 

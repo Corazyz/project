@@ -1,0 +1,3 @@
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v3/build/CMakeFiles/rebuild_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v3/build/CMakeFiles/edit_cache.dir
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v3/build/CMakeFiles/app.dir

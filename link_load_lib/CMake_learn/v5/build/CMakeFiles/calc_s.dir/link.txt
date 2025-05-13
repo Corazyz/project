@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/libcalc_s.a  CMakeFiles/calc_s.dir/src/add.cpp.o CMakeFiles/calc_s.dir/src/div.cpp.o CMakeFiles/calc_s.dir/src/mult.cpp.o CMakeFiles/calc_s.dir/src/sub.cpp.o
+/usr/bin/ranlib lib/libcalc_s.a

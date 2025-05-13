@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/app.dir/src/main.cpp.o  -o app  -Wl,-rpath,/home/zyz/projects/test_project/link_load_lib/CMake_learn/v5/build/lib lib/libcalc.so 

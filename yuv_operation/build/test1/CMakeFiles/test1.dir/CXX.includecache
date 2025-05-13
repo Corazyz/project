@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/head.h
+
+/home/zyz/projects/concate_yuv/test1/calc.cpp
+stdio.h
+-
+head.h
+/home/zyz/projects/concate_yuv/test1/head.h
+

@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/head.h
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v5/include/head.h
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v5/src/add.cpp
+stdio.h
+-
+../include/head.h
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v5/include/head.h
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v5/src/div.cpp
+stdio.h
+-
+head.h
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v5/src/head.h
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v5/src/mult.cpp
+stdio.h
+-
+head.h
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v5/src/head.h
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v5/src/sub.cpp
+stdio.h
+-
+head.h
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v5/src/head.h
+

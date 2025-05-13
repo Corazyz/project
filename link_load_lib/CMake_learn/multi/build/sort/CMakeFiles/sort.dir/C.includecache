@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/sort.h
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/sort/select.c
+stdio.h
+-
+sort.h
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/sort/sort.h
+

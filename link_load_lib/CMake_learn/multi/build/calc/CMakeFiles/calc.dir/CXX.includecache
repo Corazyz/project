@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/calc.h
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/calc/add.cpp
+stdio.h
+-
+calc.h
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/calc/calc.h
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/calc/div.cpp
+stdio.h
+-
+calc.h
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/calc/calc.h
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/calc/mult.cpp
+stdio.h
+-
+calc.h
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/calc/calc.h
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/calc/sub.cpp
+stdio.h
+-
+calc.h
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/multi/calc/calc.h
+

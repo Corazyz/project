@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/app.dir/main.cpp.o  -o aa/app   -L/home/zyz/projects/test_project/link_load_lib/CMake_learn/v4/lib2  -Wl,-rpath,/home/zyz/projects/test_project/link_load_lib/CMake_learn/v4/lib2 -lcalc 

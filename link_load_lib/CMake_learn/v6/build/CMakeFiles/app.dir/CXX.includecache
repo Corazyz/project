@@ -1,0 +1,12 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v6/test.cpp
+stdio.h
+/home/zyz/projects/test_project/link_load_lib/CMake_learn/v6/stdio.h
+
