@@ -1,15 +1,61 @@
-==2203668== Memcheck, a memory error detector
-==2203668== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==2203668== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
-==2203668== Command: ./stft1
-==2203668== Parent PID: 1681900
-==2203668== 
-==2203668== 
-==2203668== HEAP SUMMARY:
-==2203668==     in use at exit: 0 bytes in 0 blocks
-==2203668==   total heap usage: 236 allocs, 236 frees, 411,244 bytes allocated
-==2203668== 
-==2203668== All heap blocks were freed -- no leaks are possible
-==2203668== 
-==2203668== For lists of detected and suppressed errors, rerun with: -s
-==2203668== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==3105482== Memcheck, a memory error detector
+==3105482== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==3105482== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==3105482== Command: ./istft
+==3105482== Parent PID: 2994160
+==3105482== 
+==3105482== Invalid write of size 8
+==3105482==    at 0x4842A83: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3105482==    by 0x109D67: myistft (istft.c:157)
+==3105482==    by 0x10A491: main (istft.c:261)
+==3105482==  Address 0x4bd4180 is 0 bytes after a block of size 2,944 alloc'd
+==3105482==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3105482==    by 0x10A43E: main (istft.c:260)
+==3105482== 
+==3105482== Invalid write of size 8
+==3105482==    at 0x4842A8B: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3105482==    by 0x109D67: myistft (istft.c:157)
+==3105482==    by 0x10A491: main (istft.c:261)
+==3105482==  Address 0x4bd4188 is 8 bytes after a block of size 2,944 alloc'd
+==3105482==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3105482==    by 0x10A43E: main (istft.c:260)
+==3105482== 
+==3105482== Invalid write of size 8
+==3105482==    at 0x4842A93: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3105482==    by 0x109D67: myistft (istft.c:157)
+==3105482==    by 0x10A491: main (istft.c:261)
+==3105482==  Address 0x4bd4190 is 16 bytes after a block of size 2,944 alloc'd
+==3105482==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3105482==    by 0x10A43E: main (istft.c:260)
+==3105482== 
+==3105482== Invalid write of size 8
+==3105482==    at 0x4842A9B: memmove (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3105482==    by 0x109D67: myistft (istft.c:157)
+==3105482==    by 0x10A491: main (istft.c:261)
+==3105482==  Address 0x4bd4198 is 24 bytes after a block of size 2,944 in arena "client"
+==3105482== 
+==3105482== Invalid read of size 4
+==3105482==    at 0x109D9C: myistft (istft.c:162)
+==3105482==    by 0x10A491: main (istft.c:261)
+==3105482==  Address 0x4bd4180 is 0 bytes after a block of size 2,944 alloc'd
+==3105482==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3105482==    by 0x10A43E: main (istft.c:260)
+==3105482== 
+==3105482== 
+==3105482== HEAP SUMMARY:
+==3105482==     in use at exit: 2,944 bytes in 1 blocks
+==3105482==   total heap usage: 116 allocs, 115 frees, 205,752 bytes allocated
+==3105482== 
+==3105482== 2,944 bytes in 1 blocks are definitely lost in loss record 1 of 1
+==3105482==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3105482==    by 0x10A43E: main (istft.c:260)
+==3105482== 
+==3105482== LEAK SUMMARY:
+==3105482==    definitely lost: 2,944 bytes in 1 blocks
+==3105482==    indirectly lost: 0 bytes in 0 blocks
+==3105482==      possibly lost: 0 bytes in 0 blocks
+==3105482==    still reachable: 0 bytes in 0 blocks
+==3105482==         suppressed: 0 bytes in 0 blocks
+==3105482== 
+==3105482== For lists of detected and suppressed errors, rerun with: -s
+==3105482== ERROR SUMMARY: 73 errors from 6 contexts (suppressed: 0 from 0)

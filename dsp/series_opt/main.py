@@ -10,6 +10,13 @@ from moving_avg import moving_average_filter
 
 if __name__ == "__main__":
     fs, x = wavfile.read('sample-6s.wav')
+    if (len(x.shape) == 2):
+        np.savetxt("audio_data_left.txt", x[:, 0], fmt="%f")
+        np.savetxt("audio_data_right.txt", x[:, 1], fmt="%f")
+    else:
+        np.savetxt("audio_data.txt", x, fmt="%d")
+    print(f"data saved to audio_data.txt, fs = {fs} Hz")
+    print(f"xlen={x.shape}")
     y, fd = seqfold(x, fs)
 
     # 绘制原始音频波形

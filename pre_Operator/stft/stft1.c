@@ -27,7 +27,7 @@ enum win{
 
 static void dft(float* in_real, float* in_imag, float* output_real, float* output_imag, int length, bool forward);
 
-// void mystft(float *x, int xlen, float *win, int wLen, int hop, int nfft, float fs, Complex **STFT, float *f, float *t, float *t_main);
+// void mystft(float *x, int xlen, float *win, int nperseg, int hop, int nfft, float fs, Complex **STFT, float *f, float *t, float *t_main);
 void mystft(float *x, int xlen, int fs, int window, int nperseg, int noverlap, int nfft, bool return_onesided, int boundary, bool padded, Complex **STFT, float *f, float *t);
 void save_time_domain(float *t, float *x, int x_len) {
     FILE *fp = fopen("stft_time_domain.dat", "w");
@@ -87,17 +87,29 @@ int main() {
     int fs = 200;
     int duration = 9;
     int xlen = fs * duration;
-    int wlen = 256;
-    int noverlap = 128;
-    int hop = wlen - noverlap;
-    int nfft = 300;
+    // int fs = 44100;
+    // int xlen = 281856;
+    int nperseg = 2048;
+    int noverlap = 1024;
+    int hop = nperseg - noverlap;
+    int nfft = 2048;
     int boundary = even;
-    bool padded = false;
+    bool padded = true;
+    int window = HANN;
 
     float *x = (float*)malloc(xlen * sizeof(float));
-    float *win = (float*)malloc(wlen * sizeof(float));
+    // float *win = (float*)malloc(nperseg * sizeof(float));
     float *t = (float*)malloc(xlen * sizeof(float));
 
+    FILE *audio_data = fopen("../../dsp/series_opt/audio_data_left.txt", "r");
+    for (int i = 0; i < xlen; i++) {
+        if (fscanf(audio_data, "%f", &x[i]) != 1) {
+            // Handle error - the read failed
+            printf("Error reading data at position %d\n", i);
+            break;  // or handle the error appropriately
+        }
+    }
+    fclose(audio_data);
     // 生成信号
     for (int i = 0; i < xlen; i++) {
         t[i] = (float)i / fs;
@@ -108,7 +120,7 @@ int main() {
         } else if (i < 3*xlen/4) {
             x[i] = sin(2 * PI * 15 * t[i]);
         } else {
-            x[i] = sin(2 * PI * 20 * t[i]);
+            x[i] = sin(2 * PI * 5 * t[i]);
         }
     }
 
@@ -122,12 +134,12 @@ int main() {
     }
     int padded_len = 0;
     if (padded) {
-        padded_len = (xlen_ - wlen) % hop == 0 ? 0 : hop - (xlen_ - wlen) % hop;
+        padded_len = (xlen_ - nperseg) % hop == 0 ? 0 : hop - (xlen_ - nperseg) % hop;
     }
     xlen_ += padded_len;
 
-    int L = 1 + (xlen_ - wlen) / hop;
-    // int L = 1 + (xlen - wlen) / hop;
+    int L = 1 + (xlen_ - nperseg) / hop;
+    // int L = 1 + (xlen - nperseg) / hop;
 
     Complex **STFT = (Complex **)malloc(L * sizeof(Complex *));
     for (int i = 0; i < L; i++) {
@@ -137,15 +149,30 @@ int main() {
 
     float *f = (float *)malloc(nfft * sizeof(float));
     float *t_sec = (float *)malloc(L * sizeof(float));
-    for (int i = 0; i < wlen; i++) {
-        win[i] = 0.5 * (1 - cos(2 * PI * i / (wlen - 1)));
-    }
+    // for (int i = 0; i < nperseg; i++) {
+    //     win[i] = 0.5 * (1 - cos(2 * PI * i / (nperseg - 1)));
+    // }
     // float *in_real = (float *)malloc(xlen * sizeof(float));
     float *in_imag = (float *)calloc(xlen, sizeof(float));
     float *out_real = (float *)malloc(xlen * sizeof(float));
     float *out_imag = (float *)malloc(xlen * sizeof(float));
     dft(x, in_imag, out_real, out_imag, xlen, true);
-
+    float *fft_YR = (float*)malloc(xlen * sizeof(float));
+    float *fft_YI = (float*)malloc(xlen * sizeof(float));
+    FILE *Y_out = fopen("fft_Y_Out.dat", "w");
+    if (!Y_out) {
+        perror("Error opening fft_Y_Out.dat");
+        return -1;
+    }
+    fprintf(Y_out, "# YR\tYI\n");
+    for (int i = 0; i < xlen; i++) {
+        if (i == 5 * xlen / fs) {
+            out_real[i] *= 0.5;
+            out_imag[i] *= 0.5;
+        }
+        fprintf(Y_out, "%f\t%f\n", out_real[i], out_imag[i]);
+    }
+    fclose(Y_out);
     float *X = (float *)malloc(xlen * sizeof(float));
     float *freq = (float *)malloc(xlen * sizeof(float));
     for (int i = 0; i < xlen; i++) {
@@ -154,7 +181,7 @@ int main() {
     }
 
     save_frequency_domain(freq, X, xlen);
-    mystft(x, xlen, fs, HANN, wlen, noverlap, nfft, false, zeros, false, STFT, f, t_sec);
+    mystft(x, xlen, fs, window, nperseg, noverlap, nfft, false, boundary, padded, STFT, f, t_sec);
 
     FILE *input_file = fopen("input_signal.txt", "w");
     for (int i = 0; i < xlen; i++) {
@@ -166,7 +193,7 @@ int main() {
     // Save STFT magnitude (for visualization)
     FILE *stft_file = fopen("stft_magnitude.txt", "w");
     for (int l = 0; l < L; l++) {
-        for (int i = 0; i < nfft; i++) {
+        for (int i = 0; i < nfft/8; i++) {
             float magnitude = sqrtf(STFT[l][i].real * STFT[l][i].real +
                                   STFT[l][i].imag * STFT[l][i].imag);
             fprintf(stft_file, "%f ", magnitude);
@@ -175,9 +202,31 @@ int main() {
     }
     fclose(stft_file);
 
+    // Save STFT output
+    FILE *stft_out = fopen("stft_Y_Out.dat", "w");
+    if (!stft_out) {
+        perror("Error opening stft_Y_Out.dat");
+        return -1;
+    }
+    fprintf(stft_out, "# YR\tYI\n");
+    for (int l = 0; l < L; l++) {
+        for (int i = 0; i < nfft; i++) {
+            fprintf(stft_out, "%f\t%f\n", STFT[l][i].real, STFT[l][i].imag);
+        }
+    }
+    fclose(stft_out);
+    // Save STFT parameter
+    FILE *stft_param = fopen("stft_param.dat", "w");
+    if (!stft_param) {
+        perror("Error opening stft_param.dat");
+        return -1;
+    }
+    fprintf(stft_param, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", xlen, xlen_, fs, nperseg, noverlap, nfft, window, boundary);
+    fclose(stft_param);
+
     // Save frequency vector
     FILE *freq_file = fopen("frequency_vector.txt", "w");
-    for (int i = 0; i < nfft; i++) {
+    for (int i = 0; i < nfft/8; i++) {
         fprintf(freq_file, "%f\n", f[i]);
     }
     fclose(freq_file);
@@ -197,7 +246,7 @@ int main() {
 
     // Clean up
     free(x);
-    free(win);
+    // free(win);
     free(in_imag);
     free(out_imag);
     free(out_real);
@@ -224,6 +273,7 @@ void mystft(float *x, int xlen, int fs, int window, int nperseg, int noverlap, i
     }
     int padded_len = 0;
     if (padded) {
+        // padded_len = (xlen_ - nperseg) % hop == 0 ? 0 : (- (xlen_ - nperseg) % hop) % nperseg;
         padded_len = (xlen_ - nperseg) % hop == 0 ? 0 : hop - (xlen_ - nperseg) % hop;
     }
     xlen_ += padded_len;
@@ -285,7 +335,8 @@ void mystft(float *x, int xlen, int fs, int window, int nperseg, int noverlap, i
         x_[xlen_ - padded_len + i] = 0;
     }
     for (int i = 0; i < nfft; i++) {
-        f[i] = (i - nfft / 2) * ((float)fs / nfft);
+        // f[i] = (i - nfft / 2) * ((float)fs / nfft);
+        f[i] = i * ((float)fs / nfft);
     }
 
     for (int l = 0; l < L; l++) {
@@ -354,10 +405,12 @@ void mystft(float *x, int xlen, int fs, int window, int nperseg, int noverlap, i
         save_windowed_data(t_axes, xw_padded, win, freq, X, nperseg, nfft/2, l);
         // Shift and store the result
         for (int i = 0; i < nfft; i++) {
-            int shifted_index = (i + nfft / 2) % nfft;
+            // int shifted_index = (i + nfft / 2) % nfft;
             // printf("shifted_index = %d\n", shifted_index);
-            STFT[l][shifted_index].real = out_real[i];
-            STFT[l][shifted_index].imag = out_imag[i];
+            // STFT[l][shifted_index].real = out_real[i];
+            // STFT[l][shifted_index].imag = out_imag[i];
+            STFT[l][i].real = out_real[i];
+            STFT[l][i].imag = out_imag[i];
         }
         free(X);
         free(xw);

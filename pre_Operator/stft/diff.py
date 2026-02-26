@@ -1,5 +1,12 @@
 import matplotlib.pyplot as plt
+import scipy
+import scipy.fft
+import scipy.signal
 
+
+scipy.signal.istft
+scipy.signal.stft
+scipy.fft.fft
 def compare_dat_files(file_a, file_b, output_file='diff_result.txt', plot_comparison=True):
     """
     比较两个.dat文件中的幅值差值，并将结果保存到输出文件中
