@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 2.8)
+project(cvi_rc_kernel)
+set(SOURCE_FILES main.cc cvi_rc_kernel.c cvi_float_point/cvi_float_point.c cvi_float_point/cvi_soft_float.c)
+INCLUDE_DIRECTORIES(./)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-long-long -Werror -Wno-unused-result -fno-strict-aliasing")
+add_executable (main ${SOURCE_FILES})
+TARGET_LINK_LIBRARIES(main m)

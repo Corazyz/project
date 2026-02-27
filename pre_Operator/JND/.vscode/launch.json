@@ -1,0 +1,60 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        // {
+        //     "name": "Release",
+        //     "type": "cppdbg",
+        //     "request": "launch",
+        //     "program": "${workspaceFolder}/bin/TAppEncoderStatic",
+        //     "args": ["-c", "${workspaceFolder}/cfg/encoder_lowdelay_P_main_opt.cfg",
+        //     "-i", "/home/panshi/Desktop/yuv_list/akiyo_qcif_176x144_30_300.yuv", "--SourceWidth=176", "--SourceHeight=144",
+        //    ],
+        //     "stopAtEntry": false,
+        //     "cwd": "${workspaceFolder}",
+        //     "environment": [],
+        //     "externalConsole": false,
+        //     "MIMode": "gdb",
+        //     "setupCommands": [
+        //         {
+        //             "description": "Enable pretty-printing for gdb",
+        //             "text": "-enable-pretty-printing",
+        //             "ignoreFailures": true
+        //         }
+        //     ]
+        // }
+
+        {
+            "name": "Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/TAppEncoderStaticd",
+            "args": ["-c", "${workspaceFolder}/cfg/calfdozer_exp_2025_0514.cfg", 
+                "-i", "/home/panshijia/Desktop/yuv/akiyo_qcif_176x144_30_300.yuv",
+                "--SourceWidth=176", "--SourceHeight=144",
+                "--FrameRate=30","--FramesToBeEncoded=10"
+               ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+   
+   
+   
+    ]
+}
+
+
+
+

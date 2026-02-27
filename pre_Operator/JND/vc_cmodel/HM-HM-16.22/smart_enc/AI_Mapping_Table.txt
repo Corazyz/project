@@ -1,0 +1,26 @@
+# Warning!! Do not change following data easily, data parsing could be broken.
+# Delta QP table
+# 8 LUT_count
+# 16 Bin_count
+{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,   0,   0,   0 },
+{  0,  0,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,   2,   3,   3,   3 },
+{  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,   1,   1,   1,   1 },
+{  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1,  -1,  -1,  -1,  -1 },
+{  0,  0, -1, -1, -1, -1, -1, -2, -2, -2, -2, -2,  -2,  -3,  -3,  -3 },
+{  0, -1, -1, -1, -2, -2, -2, -3, -3, -3, -3, -4,  -4,  -4,  -5,  -5 },
+{  0, -1, -1, -2, -2, -3, -3, -4, -4, -4, -5, -5,  -6,  -6,  -7,  -7 },
+{ -1, -1, -2, -3, -3, -4, -4, -5, -6, -6, -7, -8,  -8,  -9,  -9, -10 }
+# Object label mapping
+# 12 Label_count
+0 ground -1
+1 water -1
+2 building -1
+3 vegetation -1
+4 sky -1
+5 person 5
+6 vehicle 6
+7 license_plate 6
+8 face 6
+9 indoor_backgrand -1
+10 object -1
+11 animal -1

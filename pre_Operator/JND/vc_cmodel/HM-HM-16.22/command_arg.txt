@@ -1,0 +1,2 @@
+commit_id = f7f3127b1d48db1297649541081e06c0bf209c11
+/home/panshijia/Desktop/handover/jnd/vc_cmodel/HM-HM-16.22/bin/TAppEncoderStaticd -c /home/panshijia/Desktop/handover/jnd/vc_cmodel/HM-HM-16.22/cfg/calfdozer_exp_2025_0514.cfg -c /home/panshijia/Desktop/handover/jnd/vc_cmodel/HM-HM-16.22/cfg/calfdozer_rc.cfg -i /home/panshijia/Desktop/yuv/akiyo_qcif_176x144_30_300.yuv --SourceWidth=176 --SourceHeight=144 --FrameRate=30 --FramesToBeEncoded=10 
