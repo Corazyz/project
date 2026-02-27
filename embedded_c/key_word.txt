@@ -1,0 +1,7 @@
+1. sizeof 关键字
+2. 数据类型关键字：char int short/long signed/unsigned float/double void
+                  自定义类型：struct union enum
+                  地址（指针）类型
+                  typedef关键字
+3. 修饰关键字：auto register static extern const
+4. 条件与选择关键字：switch 有时候比 if 更高级 
