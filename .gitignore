@@ -2,3 +2,9 @@ __pycache__/
 *.pyc
 *.log
 *.tmp
+*[Vv]irtual[Ee]nvs/
+*[Vv]env/
+*[Mm]yenv
+*[Ee]nv/
+*[Vv]irtual[Ee]nvironment/
+.ipynb_checkpoints/
