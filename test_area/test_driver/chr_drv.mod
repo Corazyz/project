@@ -1,0 +1,2 @@
+/home/zyz/projects/test_project/test_area/test_driver/chr_drv.o
+

@@ -1,0 +1,1 @@
+cmd_/home/zyz/projects/test_project/test_area/test_driver/chr_drv.mod := { echo  /home/zyz/projects/test_project/test_area/test_driver/chr_drv.o;  echo; } > /home/zyz/projects/test_project/test_area/test_driver/chr_drv.mod

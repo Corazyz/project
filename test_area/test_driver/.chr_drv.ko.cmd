@@ -1,0 +1,1 @@
+cmd_/home/zyz/projects/test_project/test_area/test_driver/chr_drv.ko := ld -r  -m elf_x86_64 -z noexecstack   --build-id=sha1  -T scripts/module.lds -o /home/zyz/projects/test_project/test_area/test_driver/chr_drv.ko /home/zyz/projects/test_project/test_area/test_driver/chr_drv.o /home/zyz/projects/test_project/test_area/test_driver/chr_drv.mod.o;  true

@@ -1,0 +1,1 @@
+cmd_/home/zyz/projects/test_project/test_area/test_driver/modules.order := {   echo /home/zyz/projects/test_project/test_area/test_driver/chr_drv.ko; :; } | awk '!x[$$0]++' - > /home/zyz/projects/test_project/test_area/test_driver/modules.order
