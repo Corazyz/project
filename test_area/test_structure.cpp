@@ -31,6 +31,7 @@ void parse_params(test1* model) {   // void* model
 }
 
 int main() {
+    struct test_struct test;
     test1* model;
     model = (test1*)calloc(1, sizeof(test1));
     parse_params(model);
