@@ -8,6 +8,9 @@
 /*
 https://github.com/opencv/opencv/blob/2.4/modules/video/src/bgfg_gaussmix.cpp
 */
+
+
+
 int CVI_HW_SingleGMM(
     CVI_U8 *pstSrc, CVI_U16 Src_u16Stride, CVI_U16 Src_u16Width, CVI_U16 Src_u16Height,
     CVI_U8 *pstModel, CVI_U8 u8ModelNum,
