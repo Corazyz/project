@@ -68,7 +68,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
-#include "cvi_ive_hw.h"
+// #include "cvi_ive_hw.h"
 
 #define MAX2(a, b)  (( (a) > (b) )? (a) : (b) )
 #define MIN2(a, b)  (( (a) < (b) )? (a) : (b) )
@@ -207,19 +207,19 @@ int CVI_HW_SingleGMM(
             }
             if ( enDetectShadow )
             {
-                pstFg0[x] = (kHit < kForeground)? 0 : 0xFF;
-                if ( (uint8_t)pstFg0[x] == 0xFF
-                        && CVI_HW_DetectGMMShadow(
-                            (uint8_t *)&pstSrc0[x],
-                            pstModel,
-                            u8ModelNum,
-                            0,
-                            u0q16BgRatio,
-                            u0q8ShadowThr,
-                            u8SnsFactor) )
-                {
-                    pstFg0[x] = 127;
-                }
+                // pstFg0[x] = (kHit < kForeground)? 0 : 0xFF;
+                // if ( (uint8_t)pstFg0[x] == 0xFF
+                //         && CVI_HW_DetectGMMShadow(
+                //             (uint8_t *)&pstSrc0[x],
+                //             pstModel,
+                //             u8ModelNum,
+                //             0,
+                //             u0q16BgRatio,
+                //             u0q8ShadowThr,
+                //             u8SnsFactor) )
+                // {
+                //     pstFg0[x] = 127;
+                // }
             }
             else
             {
@@ -382,19 +382,19 @@ int CVI_HW_RGBGMM(
             }
             if ( enDetectShadow )
             {
-                pstFg0[x] = (kHit < kForeground) - 1;
-                if ( (uint8_t)pstFg0[x] == 255
-                        && CVI_HW_DetectGMMShadow(
-                            (uint8_t *)&pstSrc0[3 * x],
-                            pstModel,
-                            u8ModelNum,
-                            1,
-                            u0q16BgRatio,
-                            u0q8ShadowThr,
-                            u8SnsFactor) )
-                {
-                    pstFg0[x] = 127;
-                }
+                // pstFg0[x] = (kHit < kForeground) - 1;
+                // if ( (uint8_t)pstFg0[x] == 255
+                //         && CVI_HW_DetectGMMShadow(
+                //             (uint8_t *)&pstSrc0[3 * x],
+                //             pstModel,
+                //             u8ModelNum,
+                //             1,
+                //             u0q16BgRatio,
+                //             u0q8ShadowThr,
+                //             u8SnsFactor) )
+                // {
+                //     pstFg0[x] = 127;
+                // }
             }
             else
             {

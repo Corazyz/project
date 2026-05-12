@@ -1,8 +1,5 @@
 #include "GMM.h"
-#include "sample_assist.h"
-#include "sample_file.h"
-#include "sample_define.h"
-// #include "mpi_ive.h"
+#include "mpi_ive.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <stdio.h>
@@ -16,6 +13,10 @@
     #include <sys/stat.h>
     #include <sys/types.h>
     #define MKDIR(path) mkdir(path, 0777)
+#endif
+
+#ifdef __unix
+#define fopen_s(pFile,filename,mode) ((*(pFile))=fopen((filename),  (mode)))==NULL
 #endif
 
 bool directoryExists(const char* path) {
@@ -59,6 +60,60 @@ typedef struct _COMMON_GMM_CTRL_S {
 	uint16_t u0q16InitWeight;
 	uint8_t  u8ModelNum;
 } COMMON_GMM_CTRL_S;
+
+int32_t CVI_ReadFile(IVE_SRC_IMAGE_S *pstImage,FILE *fp)
+{
+	uint16_t y;
+	int32_t u32Succ;
+	uint8_t *pData;
+
+
+	CVI_CHECK_ET_NULL_RET(pstImage,CVI_FAILURE);
+	CVI_CHECK_ET_NULL_RET(fp,CVI_FAILURE);
+
+	if (feof(fp))
+	{
+		fseek(fp, 0 , SEEK_SET);
+	}
+
+	u32Succ = CVI_SUCCESS;
+
+	switch(pstImage->enType)
+	{
+	case IVE_IMAGE_TYPE_U8C1:
+		{
+			pData = (uint8_t*)pstImage->au64VirAddr[0];
+			for (y = 0; y < pstImage->u32Height; y++,pData += pstImage->au32Stride[0])
+			{
+				if (1 != fread(pData,pstImage->u32Width,1,fp))
+				{
+					u32Succ = CVI_FAILURE;
+					break;
+				}
+			}
+
+		}
+		break;
+	case IVE_IMAGE_TYPE_U8C3_PACKAGE:
+		{
+			pData = (uint8_t*)pstImage->au64VirAddr[0];
+			for (y = 0; y < pstImage->u32Height; y++,pData += pstImage->au32Stride[0] * 3)
+			{
+				if (1 != fread(pData,pstImage->u32Width * 3,1,fp))
+				{
+					u32Succ = CVI_FAILURE;
+					break;
+				}
+			}
+		}
+		break;
+	default:
+		u32Succ = CVI_FAILURE;
+		break;
+	}
+
+	return u32Succ;
+}
 
 static int Common_GetChannels(IVE_IMAGE_TYPE_E enType)
 {
