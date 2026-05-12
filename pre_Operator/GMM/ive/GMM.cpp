@@ -2,7 +2,7 @@
 #include "sample_assist.h"
 #include "sample_file.h"
 #include "sample_define.h"
-#include "mpi_ive.h"
+// #include "mpi_ive.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <stdio.h>
@@ -18,7 +18,6 @@
     #define MKDIR(path) mkdir(path, 0777)
 #endif
 
-// 检查目录是否存在（简单实现）
 bool directoryExists(const char* path) {
     #ifdef _WIN32
         struct _stat info;
@@ -29,560 +28,455 @@ bool directoryExists(const char* path) {
     #endif
 }
 
-// 创建目录（如果不存在）
 void createDirectory(const char* path) {
     if (!directoryExists(path)) {
         MKDIR(path);
     }
 }
 
-
 using namespace std;
 using namespace cv;
 
-enum
-{
-	CVGRAY_IVEU8C1 = 0,
-	CVBGR_IVEU8C3PACKAGE = 1,
-
-	IVEU8C1_CVGRAY = 3,
-	IVEU8C3PACKAGE_CVBGR = 4
+enum {
+	CVGRAY_COMMON_U8C1 = 0,
+	CVBGR_COMMON_U8C3PACKAGE = 1,
+	COMMON_U8C1_CVGRAY = 3,
+	COMMON_U8C3PACKAGE_CVBGR = 4
 };
 
+typedef struct _COMMON_MEM_INFO_S {
+	uint8_t* pData;
+	uint32_t u32Size;
+} COMMON_MEM_INFO_S;
 
-// only support CVBGR2IVEU8C3PACKAGE and CVGRAY2IVEU8C1
-static void mat2IveImg(Mat *src, IVE_IMAGE_S *pstDst, int type)
+typedef struct _COMMON_GMM_CTRL_S {
+	uint16_t u0q16LearnRate;
+	uint16_t u0q16BgRatio;
+	uint16_t u8q8VarThr;
+	uint32_t u22q10NoiseVar;
+	uint32_t u22q10MaxVar;
+	uint32_t u22q10MinVar;
+	uint16_t u0q16InitWeight;
+	uint8_t  u8ModelNum;
+} COMMON_GMM_CTRL_S;
+
+static int Common_GetChannels(IVE_IMAGE_TYPE_E enType)
 {
-	if(src->cols != (int)pstDst->u32Width || src->rows != (int)pstDst->u32Height)
-	{
-		printf("width or height didn't equal, line:%d\n",__LINE__);
-	}
+	return (enType == IVE_IMAGE_TYPE_U8C3_PACKAGE) ? 3 : 1;
+}
 
-	switch(type)
-	{
-	case CVGRAY_IVEU8C1:
-		{
-			for(int r=0; r<src->rows; r++)
-			{
-				CVI_U8 *ptm = src->ptr(r);
-				CVI_U8 *pti = (CVI_U8*)(pstDst->au64VirAddr[0] + r * pstDst->au32Stride[0]);
+static int32_t Common_CreateImage(COMMON_IMAGE_S* pstImg, IVE_IMAGE_TYPE_E enType, uint32_t u32Width, uint32_t u32Height)
+{
+	int ch = (enType == IVE_IMAGE_TYPE_U8C3_PACKAGE) ? 3 : 1;
+	uint32_t u32Stride = u32Width;
+	pstImg->au64VirAddr[0] = (uint64_t)malloc(u32Stride * ch * u32Height);
+	if (!pstImg->au64VirAddr[0]) return CVI_FAILURE;
+	memset((void*)pstImg->au64VirAddr[0], 0, u32Stride * ch * u32Height);
+	pstImg->au64PhyAddr[0] = 0;
+	pstImg->au32Stride[0] = u32Stride;
+	pstImg->u32Width = u32Width;
+	pstImg->u32Height = u32Height;
+	pstImg->enType = enType;
+	pstImg->au64PhyAddr[1] = pstImg->au64PhyAddr[2] = 0;
+	pstImg->au64VirAddr[1] = pstImg->au64VirAddr[2] = 0;
+	pstImg->au32Stride[1] = pstImg->au32Stride[2] = 0;
+	return CVI_SUCCESS;
+}
 
-				memcpy(pti, ptm, pstDst->u32Width);
-			}
-			break;
-		}
-	case CVBGR_IVEU8C3PACKAGE:
-		{
-			for(int r=0; r<src->rows; r++)
-			{
-				CVI_U8 *ptm = src->ptr(r);
-				CVI_U8 *pti = (CVI_U8*)(pstDst->au64VirAddr[0] + 3 * r * pstDst->au32Stride[0]);
-
-				memcpy(pti, ptm, pstDst->u32Width * 3);
-			}
-			break;
-		}
-	default:
-		printf("not support type for mat2IveImg!\n");
+static void Common_DestroyImage(COMMON_IMAGE_S* pstImg)
+{
+	if (pstImg->au64VirAddr[0]) {
+		free((void*)pstImg->au64VirAddr[0]);
+		pstImg->au64VirAddr[0] = 0;
 	}
 }
 
-// only support IVEU8C1_CVGRAY and IVEU8C3PACKAGE_CVBGR
-static void iveImage2Mat(IVE_IMAGE_S *pstSrc, Mat *dst, int type)
+static int32_t Common_CreateMem(COMMON_MEM_INFO_S* pstMem, uint32_t u32Size)
 {
-	if(dst->cols != (int)pstSrc->u32Width || dst->rows != (int)pstSrc->u32Height)
-	{
+	pstMem->pData = (uint8_t*)malloc(u32Size);
+	if (!pstMem->pData) return CVI_FAILURE;
+	memset(pstMem->pData, 0, u32Size);
+	pstMem->u32Size = u32Size;
+	return CVI_SUCCESS;
+}
+
+static void Common_DestroyMem(COMMON_MEM_INFO_S* pstMem)
+{
+	if (pstMem->pData) {
+		free(pstMem->pData);
+		pstMem->pData = NULL;
+	}
+}
+
+static int32_t CVI_Common_GMM(COMMON_IMAGE_S *pstSrc, COMMON_IMAGE_S *pstFg,
+	COMMON_IMAGE_S *pstBg, COMMON_MEM_INFO_S *pstModel, COMMON_GMM_CTRL_S *pstCtrl)
+{
+	return CVI_MPI_IVE_GMM(
+			(uint8_t*)pstSrc->au64VirAddr[0], (uint16_t)pstSrc->au32Stride[0],
+			(uint16_t)pstSrc->u32Width, (uint16_t)pstSrc->u32Height,
+			(uint8_t*)pstFg->au64VirAddr[0], (uint16_t)pstFg->au32Stride[0],
+			(uint8_t*)pstBg->au64VirAddr[0], (uint16_t)pstBg->au32Stride[0],
+			pstModel->pData, pstCtrl->u8ModelNum,
+			pstCtrl->u0q16LearnRate, pstCtrl->u0q16BgRatio, pstCtrl->u8q8VarThr,
+			pstCtrl->u22q10NoiseVar, pstCtrl->u22q10MaxVar, pstCtrl->u22q10MinVar,
+			pstCtrl->u0q16InitWeight,
+			(uint8_t)(Common_GetChannels(pstSrc->enType) == 3 ? 1 : 0));
+}
+
+static bool Common_CompareImage(COMMON_IMAGE_S *pstImg, const char* fileName)
+{
+	FILE *fp;
+	int32_t open = fopen_s(&fp, fileName, "rb");
+	if (open != CVI_SUCCESS) {
+		printf("%s not exist\n", fileName);
+		return false;
+	}
+
+	COMMON_IMAGE_S stRef;
+	Common_CreateImage(&stRef, pstImg->enType, pstImg->u32Width, pstImg->u32Height);
+	CVI_ReadFile(&stRef, fp);
+	CVI_FCLOSE(fp);
+
+	int ch = Common_GetChannels(pstImg->enType);
+	uint32_t strideBytesA = pstImg->au32Stride[0] * ch;
+	uint32_t strideBytesB = stRef.au32Stride[0] * ch;
+	bool match = true;
+
+	for (uint32_t y = 0; y < pstImg->u32Height; y++) {
+		uint8_t *pA = (uint8_t*)(pstImg->au64VirAddr[0] + y * strideBytesA);
+		uint8_t *pB = (uint8_t*)(stRef.au64VirAddr[0] + y * strideBytesB);
+		if (memcmp(pA, pB, pstImg->u32Width * ch) != 0) {
+			match = false;
+			for (uint32_t x = 0; x < pstImg->u32Width * ch; x++) {
+				if (pA[x] != pB[x]) {
+					printf("  first diff at y=%u x=%u A=0x%02x B=0x%02x\n", y, x, pA[x], pB[x]);
+					break;
+				}
+			}
+			break;
+		}
+	}
+	Common_DestroyImage(&stRef);
+
+	if (match) {
+		printf("Compare against %s passed\n", fileName);
+		return false;
+	} else {
+		printf("Compare against %s failed\n", fileName);
+		return true;
+	}
+}
+
+static void mat2CommonImg(Mat *src, COMMON_IMAGE_S *pstDst, int type)
+{
+	if(src->cols != (int)pstDst->u32Width || src->rows != (int)pstDst->u32Height) {
+		printf("width or height didn't equal, line:%d\n",__LINE__);
+	}
+
+	int ch = Common_GetChannels(pstDst->enType);
+	uint8_t *pBase = (uint8_t*)pstDst->au64VirAddr[0];
+	uint32_t strideBytes = pstDst->au32Stride[0] * ch;
+
+	switch(type) {
+	case CVGRAY_COMMON_U8C1:
+		for(int r=0; r<src->rows; r++) {
+			uint8_t *ptm = src->ptr(r);
+			uint8_t *pti = pBase + r * strideBytes;
+			memcpy(pti, ptm, pstDst->u32Width);
+		}
+		break;
+	case CVBGR_COMMON_U8C3PACKAGE:
+		for(int r=0; r<src->rows; r++) {
+			uint8_t *ptm = src->ptr(r);
+			uint8_t *pti = pBase + r * strideBytes;
+			memcpy(pti, ptm, pstDst->u32Width * 3);
+		}
+		break;
+	default:
+		printf("not support type for mat2CommonImg!\n");
+	}
+}
+
+static void commonImg2Mat(COMMON_IMAGE_S *pstSrc, Mat *dst, int type)
+{
+	if(dst->cols != (int)pstSrc->u32Width || dst->rows != (int)pstSrc->u32Height) {
 		printf("width or height didn't equal,line:%d\n",__LINE__);
 		return;
 	}
 
-	switch(type)
-	{
-	case IVEU8C1_CVGRAY:
-		{
-			for(int r=0; r<dst->rows; r++)
-			{
-				CVI_U8 *ptm = dst->ptr(r);
-				CVI_U8 *pti = (CVI_U8*)(pstSrc->au64VirAddr[0] + r * pstSrc->au32Stride[0]);
+	int ch = Common_GetChannels(pstSrc->enType);
+	uint8_t *pBase = (uint8_t*)pstSrc->au64VirAddr[0];
+	uint32_t strideBytes = pstSrc->au32Stride[0] * ch;
 
-				memcpy(ptm, pti, dst->cols);
-			}
-			break;
+	switch(type) {
+	case COMMON_U8C1_CVGRAY:
+		for(int r=0; r<dst->rows; r++) {
+			uint8_t *ptm = dst->ptr(r);
+			uint8_t *pti = pBase + r * strideBytes;
+			memcpy(ptm, pti, dst->cols);
 		}
-	case IVEU8C3PACKAGE_CVBGR:
-		{
-			for(int r=0; r<dst->rows; r++)
-			{
-				CVI_U8 *ptm = dst->ptr(r);
-				CVI_U8 *pti = (CVI_U8*)(pstSrc->au64VirAddr[0] + 3 * r * pstSrc->au32Stride[0]);
-				memcpy(ptm, pti, dst->cols * 3);
-			}
-			break;
+		break;
+	case COMMON_U8C3PACKAGE_CVBGR:
+		for(int r=0; r<dst->rows; r++) {
+			uint8_t *ptm = dst->ptr(r);
+			uint8_t *pti = pBase + r * strideBytes;
+			memcpy(ptm, pti, dst->cols * 3);
 		}
+		break;
 	default:
-		printf("not support type for iveImage2Mat!\n");
+		printf("not support type for commonImg2Mat!\n");
 	}
 }
 
-
-CVI_S32 GMM_Sample_U8C3_PACKAGE(int show, int compare)
+int32_t GMM_Sample_U8C3_PACKAGE(int show, int compare)
 {
-	CVI_S32  s32Ret;
-	CVI_S32  s32CompareError = 0;
-	IVE_HANDLE hIveHandle;
-	CVI_BOOL bInstant = CVI_TRUE;
-	const CVI_CHAR *pchAvi = "./data/avi/campus.avi";
-	const CVI_CHAR *pchRes = "./data/avi/GMM_Sample_U8C3_PACKAGE.avi";
+	int32_t  s32Ret = CVI_SUCCESS;
+	int32_t  s32CompareError = 0;
+	const char *pchAvi = "./data/avi/campus.avi";
+	const char *pchRes = "./data/avi/GMM_Sample_U8C3_PACKAGE.avi";
 
-	IVE_IMAGE_S stIveImg;
-	IVE_IMAGE_S stIveFg;
-	IVE_IMAGE_S stIveBg;
-	IVE_MEM_INFO_S stModel;
-	IVE_GMM_CTRL_S stGMMCtrl;
-	CVI_U16 u16Width, u16Height;
-	CVI_S32 s32FrmCnt = 0;
+	COMMON_IMAGE_S stCommImg, stCommFg, stCommBg;
+	COMMON_MEM_INFO_S stModel;
+	COMMON_GMM_CTRL_S stCtrl;
+	uint16_t u16Width, u16Height;
+	int32_t s32FrmCnt = 0;
 
-	// for opencv
-	Mat cvImg, cvFg, cvBg;
-	Mat cvFgBGR, cvDispImg;
+	Mat cvImg, cvFg, cvBg, cvFgBGR, cvDispImg;
 	VideoCapture cvCap;
 	VideoWriter  cvWte;
+	cv::VideoWriter videoWriter;
+	bool isVideoInitialized = false;
 	int cvWidth, cvHeight, cvGap;
 	Size cvSz;
     int fourcc;
 
-
-    // 假设你希望输出视频为 MP4 格式，分辨率为 cvDispImg 的尺寸
-    cv::VideoWriter videoWriter;
-    bool isVideoInitialized = false;
-
-	// ori w & h
 	cvCap.open(pchAvi);
-	cvWidth  = (CVI_S32)cvCap.get(cv::CAP_PROP_FRAME_WIDTH);
-	cvHeight = (CVI_S32)cvCap.get(cv::CAP_PROP_FRAME_HEIGHT);
+	cvWidth  = (int32_t)cvCap.get(cv::CAP_PROP_FRAME_WIDTH);
+	cvHeight = (int32_t)cvCap.get(cv::CAP_PROP_FRAME_HEIGHT);
 
-	// even w & h
 	u16Width  = cvWidth & (~1);
 	u16Height = cvHeight & (~1);
 
-	//ctrl config
-	stGMMCtrl.u0q16BgRatio		= 45875;
-	stGMMCtrl.u0q16InitWeight	= 3277;
-	stGMMCtrl.u22q10NoiseVar	= 225 * 3 * 1024;
-	stGMMCtrl.u22q10MaxVar		= 3 * 4000 * 1024;
-	stGMMCtrl.u22q10MinVar		= 600 * 1024;
-	stGMMCtrl.u8q8VarThr		= (CVI_U16)(256 * 6.25);
-	stGMMCtrl.u8ModelNum		= 3;
+	stCtrl.u0q16BgRatio		= 45875;
+	stCtrl.u0q16InitWeight	= 3277;
+	stCtrl.u22q10NoiseVar	= 225 * 3 * 1024;
+	stCtrl.u22q10MaxVar		= 3 * 4000 * 1024;
+	stCtrl.u22q10MinVar		= 600 * 1024;
+	stCtrl.u8q8VarThr		= (uint16_t)(256 * 6.25);
+	stCtrl.u8ModelNum		= 3;
 
-	// malloc buf for images & model
-	s32Ret = CVI_CreateIveImage(&stIveImg, IVE_IMAGE_TYPE_U8C3_PACKAGE, u16Width, u16Height);
-	CVI_CHECK_NET_GOTO(s32Ret, CVI_SUCCESS, FAIL_0);
-
-	s32Ret = CVI_CreateIveImage(&stIveBg, stIveImg.enType, u16Width, u16Height);
-	CVI_CHECK_NET_GOTO(s32Ret, CVI_SUCCESS, FAIL_1);
+	if (Common_CreateImage(&stCommImg, IVE_IMAGE_TYPE_U8C3_PACKAGE, u16Width, u16Height) != CVI_SUCCESS)goto FAIL_0;
+	if (Common_CreateImage(&stCommBg, IVE_IMAGE_TYPE_U8C3_PACKAGE, u16Width, u16Height) != CVI_SUCCESS)goto FAIL_1;
+	if (Common_CreateImage(&stCommFg, IVE_IMAGE_TYPE_U8C1, u16Width, u16Height) != CVI_SUCCESS)goto FAIL_2;
 
 	cvBg = Mat::zeros(u16Height, u16Width, CV_8UC3);
-
-	s32Ret = CVI_CreateIveImage(&stIveFg, IVE_IMAGE_TYPE_U8C1, u16Width, u16Height);
-	CVI_CHECK_NET_GOTO(s32Ret, CVI_SUCCESS, FAIL_2);
-
 	cvFg    = Mat::zeros(u16Height, u16Width, CV_8UC1);
 	cvFgBGR = Mat::zeros(u16Height, u16Width, CV_8UC3);
 
-	stModel.u32Size    = stGMMCtrl.u8ModelNum * 11 * u16Width * u16Height;
-	stModel.u64VirAddr = (CVI_U64)malloc(stModel.u32Size);
-	CVI_CHECK_ET_GOTO(stModel.u64VirAddr, 0, FAIL_3);
-	stModel.u64PhyAddr = (CVI_U64)stModel.u64VirAddr;
-	memset((CVI_U8*)stModel.u64VirAddr, 0, stModel.u32Size);
+	if (Common_CreateMem(&stModel, stCtrl.u8ModelNum * 11 * u16Width * u16Height) != CVI_SUCCESS)goto FAIL_3;
 
 	cvGap = 10;
-	cvSz.width  = stIveImg.u32Width  + stIveBg.u32Width  + stIveFg.u32Width  + 4 * cvGap;
-	cvSz.height = max(max(stIveImg.u32Height, stIveBg.u32Height), stIveFg.u32Height) + 2 * cvGap;
-	// cvWte.open(pchRes, cv::VideoWriter::fourcc('H','2','6','4'), cvCap.get(cv::CAP_PROP_FPS), cvSz);
-    // if (!cvWte.isOpened()) {
-    //     printf("ERROR: Failed to open video writer for %s\n", pchRes);
-    //     return CVI_FAILURE;  // 或者跳过写入，避免静默失败
-    // }
-    // 替换原来的 open 语句
-    // fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');  // MJPG 编码器
-    // cvWte.open(pchRes, fourcc, cvCap.get(cv::CAP_PROP_FPS), cvSz);
-
-    // // 必须检查是否成功打开
-    // if (!cvWte.isOpened()) {
-    //     printf("ERROR: Failed to open video writer for %s\n", pchRes);
-    //     return CVI_FAILURE;
-    // }
-    // 替换原来的 MJPG
+	cvSz.width  = stCommImg.u32Width  + stCommBg.u32Width  + stCommFg.u32Width  + 4 * cvGap;
+	cvSz.height = max(max(stCommImg.u32Height, stCommBg.u32Height), stCommFg.u32Height) + 2 * cvGap;
     fourcc = cv::VideoWriter::fourcc('X', 'V', 'I', 'D');
     cvWte.open(pchRes, fourcc, cvCap.get(cv::CAP_PROP_FPS), cvSz);
 
-
-	for(;;)
-    {
-        s32FrmCnt = (CVI_S32)cvCap.get(cv::CAP_PROP_POS_FRAMES);
-
+	for(;;) {
+        s32FrmCnt = (int32_t)cvCap.get(cv::CAP_PROP_POS_FRAMES);
         cvCap >> cvImg;
-        if( cvImg.empty())
-            break;
+        if(cvImg.empty()) break;
 
-        if(cvImg.rows != (int)stIveImg.u32Height || cvImg.cols != (int)stIveImg.u32Width)
-        {
-            resize(cvImg, cvImg, Size(stIveImg.u32Width, stIveImg.u32Height));
-        }
+        if(cvImg.rows != (int)stCommImg.u32Height || cvImg.cols != (int)stCommImg.u32Width)
+            resize(cvImg, cvImg, Size(stCommImg.u32Width, stCommImg.u32Height));
 
-        mat2IveImg(&cvImg, &stIveImg, CVBGR_IVEU8C3PACKAGE);
+        mat2CommonImg(&cvImg, &stCommImg, CVBGR_COMMON_U8C3PACKAGE);
 
-        if(s32FrmCnt >= 500)
-        {
-            stGMMCtrl.u0q16LearnRate = 131; //0.02
-        }
-        else
-        {
-            stGMMCtrl.u0q16LearnRate = 65535/(s32FrmCnt+1);
-        }
+        stCtrl.u0q16LearnRate = (s32FrmCnt >= 500) ? 131 : (65535/(s32FrmCnt+1));
 
-        s32Ret = CVI_MPI_IVE_GMM(&hIveHandle, &stIveImg, &stIveFg, &stIveBg, &stModel, &stGMMCtrl, bInstant);
-        CVI_CHECK_NET_GOTO(s32Ret, CVI_SUCCESS, FAIL_4);
+        s32Ret = CVI_Common_GMM(&stCommImg, &stCommFg, &stCommBg, &stModel, &stCtrl);
+        if (s32Ret != CVI_SUCCESS) goto FAIL_4;
 
-        if (compare && (s32FrmCnt == 0 || s32FrmCnt == 1 || s32FrmCnt == 512))
-        {
-            FILE *fp;
-            CVI_CHAR fileName[_MAX_FNAME];
-            IVE_IMAGE_S stIveBgRef;
-            IVE_IMAGE_S stIveFgRef;
-            CVI_S32 cmp, open;
+        if (compare && (s32FrmCnt == 0 || s32FrmCnt == 1 || s32FrmCnt == 512)) {
+            char fileName[_MAX_FNAME];
 
             snprintf(fileName, _MAX_FNAME, "./data/result/sample_GMM_U8C3_PACKAGE_bg_%d.rgb", s32FrmCnt);
-            open = fopen_s(&fp,fileName,"rb");
-            if (open == CVI_SUCCESS)
-            {
-                CVI_CreateIveImage(&stIveBgRef, stIveBg.enType, u16Width, u16Height);
-                CVI_ReadFile(&stIveBgRef, fp);
-                CVI_FCLOSE(fp);
-                cmp = CVI_CompareIveImage(&stIveBg, &stIveBgRef);
-                if (cmp)
-                {
-                    printf("Compare against %s failed\n", fileName);
-                    s32CompareError ++;
-                }
-                else
-                {
-                    printf("Compare against %s passed\n", fileName);
-                }
-                CVI_DestroyIveImage(&stIveBgRef);
-            }
-            else
-            {
-                printf("%s not exist\n", fileName);
-            }
+            if (Common_CompareImage(&stCommBg, fileName))
+                s32CompareError++;
 
             snprintf(fileName, _MAX_FNAME, "./data/result/sample_GMM_U8C3_PACKAGE_fg_%d.yuv", s32FrmCnt);
-            open = fopen_s(&fp,fileName,"rb");
-            if (open == CVI_SUCCESS)
-            {
-                CVI_CreateIveImage(&stIveFgRef, stIveFg.enType, u16Width, u16Height);
-                CVI_ReadFile(&stIveFgRef, fp);
-                CVI_FCLOSE(fp);
-                cmp = CVI_CompareIveImage(&stIveFg, &stIveFgRef);
-                if (cmp)
-                {
-                    printf("Compare against %s failed\n", fileName);
-                    s32CompareError ++;
-                }
-                else
-                {
-                    printf("Compare against %s passed\n", fileName);
-                }
-                CVI_DestroyIveImage(&stIveFgRef);
-            }
-            else
-            {
-                printf("%s not exist\n", fileName);
-            }
+            if (Common_CompareImage(&stCommFg, fileName))
+                s32CompareError++;
         }
 
-
-        // 只在 show == 1 时拼接并保存帧，但不显示窗口
-        if (show)
-        {
-            iveImage2Mat(&stIveBg, &cvBg, IVEU8C3PACKAGE_CVBGR);
-            iveImage2Mat(&stIveFg, &cvFg, IVEU8C1_CVGRAY);
+        if (show) {
+            commonImg2Mat(&stCommBg, &cvBg, COMMON_U8C3PACKAGE_CVBGR);
+            commonImg2Mat(&stCommFg, &cvFg, COMMON_U8C1_CVGRAY);
             cvtColor(cvFg, cvFgBGR, cv::COLOR_GRAY2BGR);
 
-            // 横向拼接三张图像：src + bg + fg
-            Mat cvDispImg;
-            hconcat(cvImg, cvBg, cvDispImg);          // src + bg
-            hconcat(cvDispImg, cvFgBGR, cvDispImg);   // + fg
+            hconcat(cvImg, cvBg, cvDispImg);
+            hconcat(cvDispImg, cvFgBGR, cvDispImg);
 
-            // 添加文字
             putText(cvDispImg, "srcImg", Point(5,15), FONT_HERSHEY_COMPLEX_SMALL, 1, CV_RGB(255,0,0));
             putText(cvDispImg, "bgImg", Point(cvImg.cols + 5,15), FONT_HERSHEY_COMPLEX_SMALL, 1, CV_RGB(255,0,0));
             putText(cvDispImg, "fgImg", Point(cvImg.cols + cvBg.cols + 5,15), FONT_HERSHEY_COMPLEX_SMALL, 1, CV_RGB(255,0,0));
 
-            // ✅ 视频写入部分：首次写入时初始化 VideoWriter
-            if (!isVideoInitialized && cvDispImg.rows > 0 && cvDispImg.cols > 0)
-            {
+            if (!isVideoInitialized && cvDispImg.rows > 0 && cvDispImg.cols > 0) {
                 const char* videoPath = "./data/result/output_video.mp4";
-                int fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v'); // 或 'X', '2', '6', '4' 用于 H.264
-                double fps = 25.0; // 根据你的实际帧率调整
+                int vfourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
+                double fps = 25.0;
                 cv::Size frameSize(cvDispImg.cols, cvDispImg.rows);
-
-                videoWriter.open(videoPath, fourcc, fps, frameSize);
-
-                if (!videoWriter.isOpened())
-                {
-                    std::cerr << "❌ Failed to open video writer!" << std::endl;
-                }
-                else
-                {
-                    std::cout << "✅ Video writer initialized: " << videoPath << std::endl;
-                    isVideoInitialized = true;
-                }
+                videoWriter.open(videoPath, vfourcc, fps, frameSize);
+                if (videoWriter.isOpened()) isVideoInitialized = true;
             }
 
-            // ✅ 写入当前帧到视频
-            if (isVideoInitialized)
-            {
-                videoWriter.write(cvDispImg);
-                // std::cout << "Wrote frame " << s32FrmCnt << " to video" << std::endl;
-            }
+            if (isVideoInitialized) videoWriter.write(cvDispImg);
 
-            // ✅ 保留原图片保存功能（可选）
             char filename[256];
             snprintf(filename, sizeof(filename), "./data/result/frame/frame_%06d.png", s32FrmCnt);
-            const char* dir = "./data/result/frame/";
-            createDirectory(dir);
+            createDirectory("./data/result/frame/");
             imwrite(filename, cvDispImg);
-        }
-
-    }
-    if (isVideoInitialized)
-    {
-        videoWriter.release();
-        std::cout << "✅ Video file saved successfully." << std::endl;
-    }
-
-FAIL_4:
-    cvWte.release();
-	CVI_FREE_64(stModel.u64VirAddr);
-FAIL_3:
-	CVI_DestroyIveImage(&stIveFg);
-FAIL_2:
-	CVI_DestroyIveImage(&stIveBg);
-FAIL_1:
-	CVI_DestroyIveImage(&stIveImg);
-FAIL_0:
-	destroyAllWindows();
-	return (s32CompareError == 0) ? s32Ret : CVI_FAILURE;
-}
-
-CVI_S32 GMM_Sample_U8C1(int show, int compare)
-{
-	CVI_S32  s32Ret;
-	CVI_S32 s32CompareError = 0;
-	IVE_HANDLE hIveHandle;
-	CVI_BOOL bInstant = CVI_TRUE;
-	const CVI_CHAR *pchAvi = "./data/avi/campus.avi";
-	const CVI_CHAR *pchRes = "./data/avi/GMM_Sample_U8C1.avi";
-
-	IVE_IMAGE_S stIveImg;
-	IVE_IMAGE_S stIveFg;
-	IVE_IMAGE_S stIveBg;
-	IVE_MEM_INFO_S stModel;
-	IVE_GMM_CTRL_S stGMMCtrl;
-	CVI_U16 u16Width, u16Height;
-	CVI_S32 s32FrmCnt = 0;
-
-	// for opencv
-	Mat cvImg, cvFg, cvBg;
-	Mat cvImgGray, cvFgBGR, cvBgBGR, cvDispImg;
-	VideoCapture cvCap;
-	VideoWriter  cvWte;
-	int cvWidth, cvHeight, cvGap;
-	Size cvSz;
-    int fourcc;
-	// ori w & h
-	cvCap.open(pchAvi);
-	cvWidth  = (CVI_S32)cvCap.get(cv::CAP_PROP_FRAME_WIDTH);
-	cvHeight = (CVI_S32)cvCap.get(cv::CAP_PROP_FRAME_HEIGHT);
-
-	// even w & h
-	u16Width  = cvWidth & (~1);
-	u16Height = cvHeight & (~1);
-
-	//ctrl config
-	stGMMCtrl.u0q16BgRatio		= 45875;
-	stGMMCtrl.u0q16InitWeight	= 3277;
-	stGMMCtrl.u22q10NoiseVar	= 225 * 1024;
-	stGMMCtrl.u22q10MaxVar		= 2000 * 1024;
-	stGMMCtrl.u22q10MinVar		= 200 * 1024;
-	stGMMCtrl.u8q8VarThr		= (CVI_U16)(256 * 6.25);
-	stGMMCtrl.u8ModelNum		= 3;
-
-	// malloc buf for images & model
-	s32Ret = CVI_CreateIveImage(&stIveImg, IVE_IMAGE_TYPE_U8C1, u16Width, u16Height);
-	CVI_CHECK_NET_GOTO(s32Ret, CVI_SUCCESS, FAIL_0);
-
-	s32Ret = CVI_CreateIveImage(&stIveBg, stIveImg.enType, u16Width, u16Height);
-	CVI_CHECK_NET_GOTO(s32Ret, CVI_SUCCESS, FAIL_1);
-
-	cvBg	= Mat::zeros(u16Height, u16Width, CV_8UC1);
-	cvBgBGR = Mat::zeros(u16Height, u16Width, CV_8UC3);
-
-	s32Ret = CVI_CreateIveImage(&stIveFg, IVE_IMAGE_TYPE_U8C1, u16Width, u16Height);
-	CVI_CHECK_NET_GOTO(s32Ret, CVI_SUCCESS, FAIL_2);
-
-	cvFg    = Mat::zeros(u16Height, u16Width, CV_8UC1);
-	cvFgBGR = Mat::zeros(u16Height, u16Width, CV_8UC3);
-
-	stModel.u32Size    = stGMMCtrl.u8ModelNum * 7 * u16Width * u16Height;
-	stModel.u64VirAddr = (CVI_U64)malloc(stModel.u32Size);
-	CVI_CHECK_ET_GOTO(stModel.u64VirAddr, 0, FAIL_3);
-	stModel.u64PhyAddr = (CVI_U64)stModel.u64VirAddr;
-	memset((CVI_U8*)stModel.u64VirAddr, 0, stModel.u32Size);
-
-	cvGap = 10;
-	cvSz.width  = stIveImg.u32Width  + stIveBg.u32Width  + stIveFg.u32Width  + 4 * cvGap;
-	cvSz.height = max(max(stIveImg.u32Height, stIveBg.u32Height), stIveFg.u32Height) + 2 * cvGap;
-	// cvWte.open(pchRes, cv::VideoWriter::fourcc('H','2','6','4'), cvCap.get(cv::CAP_PROP_FPS), cvSz);
-    // if (!cvWte.isOpened()) {
-    //     printf("ERROR: Failed to open video writer for %s\n", pchRes);
-    //     return CVI_FAILURE;  // 或者跳过写入，避免静默失败
-    // }
-    // 替换原来的 open 语句
-    // fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');  // MJPG 编码器
-    // cvWte.open(pchRes, fourcc, cvCap.get(cv::CAP_PROP_FPS), cvSz);
-
-    // // 必须检查是否成功打开
-    // if (!cvWte.isOpened()) {
-    //     printf("ERROR: Failed to open video writer for %s\n", pchRes);
-    //     return CVI_FAILURE;
-    // }
-// 替换原来的 MJPG
-    fourcc = cv::VideoWriter::fourcc('X', 'V', 'I', 'D');
-    cvWte.open(pchRes, fourcc, cvCap.get(cv::CAP_PROP_FPS), cvSz);
-
-
-	for(;;)
-	{
-		vector<Mat *> cvImgVec;
-		s32FrmCnt = (CVI_S32)cvCap.get(cv::CAP_PROP_POS_FRAMES);
-
-
-		cvCap >> cvImg;
-		if( cvImg.empty())
-			break;
-
-		if(cvImg.rows != (int)stIveImg.u32Height || cvImg.cols != (int)stIveImg.u32Width)
-		{
-			resize(cvImg, cvImg, Size(stIveImg.u32Width, stIveImg.u32Height));
-		}
-
-		cvtColor(cvImg, cvImgGray, cv::COLOR_BGR2BGRA);
-		mat2IveImg(&cvImgGray, &stIveImg, CVGRAY_IVEU8C1);
-
-		if(s32FrmCnt >= 500)
-		{
-			stGMMCtrl.u0q16LearnRate = 131; //0.02
-		}
-		else
-		{
-			stGMMCtrl.u0q16LearnRate = 65535/(s32FrmCnt+1);
-		}
-
-		s32Ret = CVI_MPI_IVE_GMM(&hIveHandle, &stIveImg, &stIveFg, &stIveBg, &stModel, &stGMMCtrl, bInstant);
-		CVI_CHECK_NET_GOTO(s32Ret, CVI_SUCCESS, FAIL_4);
-
-
-		if (compare && (s32FrmCnt == 0 || s32FrmCnt == 1 || s32FrmCnt == 512))
-		{
-			FILE *fp;
-			CVI_CHAR fileName[_MAX_FNAME];
-			IVE_IMAGE_S stIveBgRef;
-			IVE_IMAGE_S stIveFgRef;
-			CVI_S32 cmp, open;
-
-			snprintf(fileName, _MAX_FNAME, "./data/result/sample_GMM_U8C1_bg_%d.yuv", s32FrmCnt);
-			open = fopen_s(&fp,fileName,"rb");
-			if (open == CVI_SUCCESS)
-			{
-				CVI_CreateIveImage(&stIveBgRef, stIveBg.enType, u16Width, u16Height);
-				CVI_ReadFile(&stIveBgRef, fp);
-				CVI_FCLOSE(fp);
-				cmp = CVI_CompareIveImage(&stIveBg, &stIveBgRef);
-				if (cmp)
-				{
-					printf("Compare against %s failed\n", fileName);
-					s32CompareError ++;
-				}
-				else
-				{
-					printf("Compare against %s passed\n", fileName);
-				}
-				CVI_DestroyIveImage(&stIveBgRef);
-			}
-			else
-			{
-				printf("%s not exist\n", fileName);
-			}
-
-			snprintf(fileName, _MAX_FNAME, "./data/result/sample_GMM_U8C1_fg_%d.yuv", s32FrmCnt);
-			open = fopen_s(&fp,fileName,"rb");
-			if (open == CVI_SUCCESS)
-			{
-				CVI_CreateIveImage(&stIveFgRef, stIveFg.enType, u16Width, u16Height);
-				CVI_ReadFile(&stIveFgRef, fp);
-				CVI_FCLOSE(fp);
-				cmp = CVI_CompareIveImage(&stIveFg, &stIveFgRef);
-				if (cmp)
-				{
-					printf("Compare against %s failed\n", fileName);
-					s32CompareError ++;
-				}
-				else
-				{
-					printf("Compare against %s passed\n", fileName);
-				}
-				CVI_DestroyIveImage(&stIveFgRef);
-			}
-			else
-			{
-				printf("%s not exist\n", fileName);
-			}
-		}
-
-		if (show)
-        {
-            iveImage2Mat(&stIveBg, &cvBg, IVEU8C1_CVGRAY);
-            iveImage2Mat(&stIveFg, &cvFg, IVEU8C1_CVGRAY);
-            cvtColor(cvBg, cvBgBGR, cv::COLOR_GRAY2BGR);
-            cvtColor(cvFg, cvFgBGR, cv::COLOR_GRAY2BGR);
-
-            // ✅ 正确拼接三张图像
-            Mat cvDispImg;
-            hconcat(cvImg, cvBgBGR, cvDispImg);   // src + bg
-            hconcat(cvDispImg, cvFgBGR, cvDispImg); // + fg
-
-            // 添加文字
-            putText(cvDispImg, "srcImg", Point(5,15), FONT_HERSHEY_COMPLEX_SMALL, 1, CV_RGB(255,0,0));
-            putText(cvDispImg, "bgImg", Point(cvImg.cols + 5,15), FONT_HERSHEY_COMPLEX_SMALL, 1, CV_RGB(255,0,0));
-            putText(cvDispImg, "fgImg", Point(cvImg.cols + cvBgBGR.cols + 5,15), FONT_HERSHEY_COMPLEX_SMALL, 1, CV_RGB(255,0,0));
-
-            // 写入视频
-            cvWte.write(cvDispImg);
-            // printf("Wrote frame %d to video\n", s32FrmCnt);  // ✅ 添加调试日志
         }
 	}
 
 FAIL_4:
-	CVI_FREE_64(stModel.u64VirAddr);
+    cvWte.release();
+    if (isVideoInitialized) { videoWriter.release(); }
 FAIL_3:
-	CVI_DestroyIveImage(&stIveFg);
+    Common_DestroyMem(&stModel);
 FAIL_2:
-	CVI_DestroyIveImage(&stIveBg);
+    Common_DestroyImage(&stCommFg);
 FAIL_1:
-	CVI_DestroyIveImage(&stIveImg);
+    Common_DestroyImage(&stCommBg);
 FAIL_0:
-	destroyAllWindows();
-	return (s32CompareError == 0) ? s32Ret : CVI_FAILURE;
+    Common_DestroyImage(&stCommImg);
+    destroyAllWindows();
+    return (s32CompareError == 0) ? s32Ret : CVI_FAILURE;
+}
+
+int32_t GMM_Sample_U8C1(int show, int compare)
+{
+	int32_t  s32Ret = CVI_SUCCESS;
+	int32_t s32CompareError = 0;
+	const char *pchAvi = "./data/avi/campus.avi";
+	const char *pchRes = "./data/avi/GMM_Sample_U8C1.avi";
+
+	COMMON_IMAGE_S stCommImg, stCommFg, stCommBg;
+	COMMON_MEM_INFO_S stModel;
+	COMMON_GMM_CTRL_S stCtrl;
+	uint16_t u16Width, u16Height;
+	int32_t s32FrmCnt = 0;
+
+	Mat cvImg, cvFg, cvBg, cvImgGray, cvFgBGR, cvBgBGR, cvDispImg;
+	VideoCapture cvCap;
+	VideoWriter  cvWte;
+	cv::VideoWriter videoWriter;
+	bool isVideoInitialized = false;
+	int cvWidth, cvHeight, cvGap;
+	Size cvSz;
+    int fourcc;
+
+	cvCap.open(pchAvi);
+	cvWidth  = (int32_t)cvCap.get(cv::CAP_PROP_FRAME_WIDTH);
+	cvHeight = (int32_t)cvCap.get(cv::CAP_PROP_FRAME_HEIGHT);
+
+	u16Width  = cvWidth & (~1);
+	u16Height = cvHeight & (~1);
+
+	stCtrl.u0q16BgRatio		= 45875;
+	stCtrl.u0q16InitWeight	= 3277;
+	stCtrl.u22q10NoiseVar	= 225 * 1024;
+	stCtrl.u22q10MaxVar		= 2000 * 1024;
+	stCtrl.u22q10MinVar		= 200 * 1024;
+	stCtrl.u8q8VarThr		= (uint16_t)(256 * 6.25);
+	stCtrl.u8ModelNum		= 3;
+
+	if (Common_CreateImage(&stCommImg, IVE_IMAGE_TYPE_U8C1, u16Width, u16Height) != CVI_SUCCESS)goto FAIL_U8C1_0;
+	if (Common_CreateImage(&stCommBg, IVE_IMAGE_TYPE_U8C1, u16Width, u16Height) != CVI_SUCCESS)goto FAIL_U8C1_1;
+	if (Common_CreateImage(&stCommFg, IVE_IMAGE_TYPE_U8C1, u16Width, u16Height) != CVI_SUCCESS)goto FAIL_U8C1_2;
+
+	cvBg	= Mat::zeros(u16Height, u16Width, CV_8UC1);
+	cvBgBGR = Mat::zeros(u16Height, u16Width, CV_8UC3);
+	cvFg    = Mat::zeros(u16Height, u16Width, CV_8UC1);
+	cvFgBGR = Mat::zeros(u16Height, u16Width, CV_8UC3);
+
+	if (Common_CreateMem(&stModel, stCtrl.u8ModelNum * 7 * u16Width * u16Height) != CVI_SUCCESS)goto FAIL_U8C1_3;
+
+	cvGap = 10;
+	cvSz.width  = stCommImg.u32Width  + stCommBg.u32Width  + stCommFg.u32Width  + 4 * cvGap;
+	cvSz.height = max(max(stCommImg.u32Height, stCommBg.u32Height), stCommFg.u32Height) + 2 * cvGap;
+    fourcc = cv::VideoWriter::fourcc('X', 'V', 'I', 'D');
+    cvWte.open(pchRes, fourcc, cvCap.get(cv::CAP_PROP_FPS), cvSz);
+
+	for(;;) {
+		s32FrmCnt = (int32_t)cvCap.get(cv::CAP_PROP_POS_FRAMES);
+		cvCap >> cvImg;
+		if(cvImg.empty()) break;
+
+		if(cvImg.rows != (int)stCommImg.u32Height || cvImg.cols != (int)stCommImg.u32Width)
+			resize(cvImg, cvImg, Size(stCommImg.u32Width, stCommImg.u32Height));
+
+		cvtColor(cvImg, cvImgGray, cv::COLOR_BGR2GRAY);
+		mat2CommonImg(&cvImgGray, &stCommImg, CVGRAY_COMMON_U8C1);
+
+		stCtrl.u0q16LearnRate = (s32FrmCnt >= 500) ? 131 : (65535/(s32FrmCnt+1));
+
+		s32Ret = CVI_Common_GMM(&stCommImg, &stCommFg, &stCommBg, &stModel, &stCtrl);
+		if (s32Ret != CVI_SUCCESS) goto FAIL_U8C1_4;
+
+		if (compare && (s32FrmCnt == 0 || s32FrmCnt == 1 || s32FrmCnt == 512)) {
+			char fileName[_MAX_FNAME];
+
+			snprintf(fileName, _MAX_FNAME, "./data/result/sample_GMM_U8C1_bg_%d.yuv", s32FrmCnt);
+			if (Common_CompareImage(&stCommBg, fileName))
+				s32CompareError++;
+
+			snprintf(fileName, _MAX_FNAME, "./data/result/sample_GMM_U8C1_fg_%d.yuv", s32FrmCnt);
+			if (Common_CompareImage(&stCommFg, fileName))
+				s32CompareError++;
+		}
+
+		if (show) {
+            commonImg2Mat(&stCommBg, &cvBg, COMMON_U8C1_CVGRAY);
+            commonImg2Mat(&stCommFg, &cvFg, COMMON_U8C1_CVGRAY);
+            cvtColor(cvBg, cvBgBGR, cv::COLOR_GRAY2BGR);
+            cvtColor(cvFg, cvFgBGR, cv::COLOR_GRAY2BGR);
+
+            hconcat(cvImg, cvBgBGR, cvDispImg);
+            hconcat(cvDispImg, cvFgBGR, cvDispImg);
+
+            putText(cvDispImg, "srcImg", Point(5,15), FONT_HERSHEY_COMPLEX_SMALL, 1, CV_RGB(255,0,0));
+            putText(cvDispImg, "bgImg", Point(cvImg.cols + 5,15), FONT_HERSHEY_COMPLEX_SMALL, 1, CV_RGB(255,0,0));
+            putText(cvDispImg, "fgImg", Point(cvImg.cols + cvBgBGR.cols + 5,15), FONT_HERSHEY_COMPLEX_SMALL, 1, CV_RGB(255,0,0));
+
+            if (!isVideoInitialized && cvDispImg.rows > 0 && cvDispImg.cols > 0) {
+                const char* videoPath = "./data/result/output_video_u8c1.mp4";
+                int vfourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
+                double fps = 25.0;
+                cv::Size frameSize(cvDispImg.cols, cvDispImg.rows);
+                videoWriter.open(videoPath, vfourcc, fps, frameSize);
+                if (videoWriter.isOpened()) isVideoInitialized = true;
+            }
+
+            if (isVideoInitialized) videoWriter.write(cvDispImg);
+
+            char filename[256];
+            snprintf(filename, sizeof(filename), "./data/result/frame/frame_%06d.png", s32FrmCnt);
+            createDirectory("./data/result/frame/");
+            imwrite(filename, cvDispImg);
+        }
+	}
+
+FAIL_U8C1_4:
+    cvWte.release();
+    if (isVideoInitialized) { videoWriter.release(); std::cout << "U8C1 Video file saved successfully." << std::endl; }
+FAIL_U8C1_3:
+    Common_DestroyMem(&stModel);
+FAIL_U8C1_2:
+    Common_DestroyImage(&stCommFg);
+FAIL_U8C1_1:
+    Common_DestroyImage(&stCommBg);
+FAIL_U8C1_0:
+    Common_DestroyImage(&stCommImg);
+    destroyAllWindows();
+    return (s32CompareError == 0) ? s32Ret : CVI_FAILURE;
 }

@@ -10,21 +10,6 @@ extern "C"{
 #endif
 #endif /* __cplusplus */
 
-typedef uint8_t           CVI_U8;
-typedef uint8_t           CVI_UCHAR;
-typedef uint16_t          CVI_U16;
-typedef uint32_t          CVI_U32;
-typedef int8_t            CVI_S8;
-typedef int16_t           CVI_S16;
-typedef int32_t           CVI_S32;
-typedef uint64_t          CVI_U64;
-typedef int64_t           CVI_S64;
-typedef char              CVI_CHAR;
-//typedef void              CVI_VOID;
-#define CVI_VOID          void
-typedef unsigned long     CVI_SIZE_T;
-typedef unsigned long     CVI_LENGTH_T;
-
 typedef enum {
     CVI_FALSE    = 0,
     CVI_TRUE     = 1,
@@ -45,10 +30,10 @@ typedef enum {
 #define CVI_INVALID_HANDLE  (-1)
 #define CVI_DBG_ERR         3    /* error conditions, sdk code: CVI_debug.h */
 
-typedef CVI_S32 IVE_HANDLE;
-typedef CVI_S32 CLS_HANDLE;
-typedef CVI_S32 FD_CHN;
-typedef CVI_S32 MD_CHN;
+typedef int32_t IVE_HANDLE;
+typedef int32_t CLS_HANDLE;
+typedef int32_t FD_CHN;
+typedef int32_t MD_CHN;
 
 #ifdef __cplusplus
 #if __cplusplus

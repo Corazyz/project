@@ -9,9 +9,9 @@
 #include <time.h>
 #endif
 
-CVI_U32 CVI_CalcStride(CVI_U32 u32Width, CVI_U32 u32Align)
+uint32_t CVI_CalcStride(uint32_t u32Width, uint32_t u32Align)
 {
-	CVI_U32 u16stride = u32Width + (u32Align - u32Width%u32Align)%u32Align;
+	uint32_t u16stride = u32Width + (u32Align - u32Width%u32Align)%u32Align;
 	return u16stride;
 }
 #ifndef align_up
@@ -59,10 +59,10 @@ void * aligned_malloc(size_t align, size_t size)
 
     return ptr;
 }
-CVI_S32 CVI_CreateIveImage(IVE_IMAGE_S *pstImage,IVE_IMAGE_TYPE_E enType, CVI_U32 u32Width, CVI_U32 u32Height)
+int32_t CVI_CreateIveImage(IVE_IMAGE_S *pstImage,IVE_IMAGE_TYPE_E enType, uint32_t u32Width, uint32_t u32Height)
 {
-	CVI_U32 u32Stride;
-	CVI_S32 s32Succ;
+	uint32_t u32Stride;
+	int32_t s32Succ;
 
 	CVI_CHECK_ET_NULL_RET(pstImage,CVI_FAILURE);
 
@@ -79,51 +79,51 @@ CVI_S32 CVI_CreateIveImage(IVE_IMAGE_S *pstImage,IVE_IMAGE_TYPE_E enType, CVI_U3
 	case IVE_IMAGE_TYPE_U8C1:
 	case IVE_IMAGE_TYPE_S8C1:
 		{
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height);
-			//pstImage->au64VirAddr[0] = (CVI_U64)aligned_malloc(16, u32Stride * u32Height);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height);
+			//pstImage->au64VirAddr[0] = (uint64_t)aligned_malloc(16, u32Stride * u32Height);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
 			assert(pstImage->au64VirAddr[0] % 16 == 0);
 			pstImage->au32Stride[0]  = u32Stride;
 		}
 		break;
 	case IVE_IMAGE_TYPE_YUV420SP:
 		{
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height * 3/2);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height * 3/2);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 
 			pstImage->au64VirAddr[1] = pstImage->au64VirAddr[0] + u32Stride * u32Height;
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
-			pstImage->au64PhyAddr[1] = (CVI_U64)pstImage->au64VirAddr[1];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[1] = (uint64_t)pstImage->au64VirAddr[1];
 			pstImage->au32Stride[0]  = u32Stride;
 			pstImage->au32Stride[1]  = pstImage->au32Stride[0];
 		}
 		break;
 	case IVE_IMAGE_TYPE_YUV422SP:
 		{
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height * 2);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height * 2);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 
 			pstImage->au64VirAddr[1] = pstImage->au64VirAddr[0] + u32Stride * u32Height;
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
-			pstImage->au64PhyAddr[1] = (CVI_U64)pstImage->au64VirAddr[1];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[1] = (uint64_t)pstImage->au64VirAddr[1];
 			pstImage->au32Stride[0] = u32Stride;
 			pstImage->au32Stride[1]  = pstImage->au32Stride[0];
 		}
 		break;
 	case IVE_IMAGE_TYPE_YUV420P:
 		{
-			CVI_U32 u32Stride2;
+			uint32_t u32Stride2;
 
 			u32Stride2= CVI_CalcStride(u32Width/2, CVI_IVE2_STRIDE_ALIGN);
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height + u32Stride2 * u32Height);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height + u32Stride2 * u32Height);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 			pstImage->au64VirAddr[1] = pstImage->au64VirAddr[0] + u32Stride * u32Height;
 			pstImage->au64VirAddr[2] = pstImage->au64VirAddr[1] + u32Stride2 * u32Height/2;
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
-			pstImage->au64PhyAddr[1] = (CVI_U64)pstImage->au64VirAddr[1];
-			pstImage->au64PhyAddr[2] = (CVI_U64)pstImage->au64VirAddr[2];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[1] = (uint64_t)pstImage->au64VirAddr[1];
+			pstImage->au64PhyAddr[2] = (uint64_t)pstImage->au64VirAddr[2];
 			pstImage->au32Stride[0] = u32Stride;
 			pstImage->au32Stride[1]  = u32Stride2;
 			pstImage->au32Stride[2]  = pstImage->au32Stride[1];
@@ -131,16 +131,16 @@ CVI_S32 CVI_CreateIveImage(IVE_IMAGE_S *pstImage,IVE_IMAGE_TYPE_E enType, CVI_U3
 		break;
 	case IVE_IMAGE_TYPE_YUV422P:
 		{
-			CVI_U32 u32Stride2;
+			uint32_t u32Stride2;
 
 			u32Stride2 = CVI_CalcStride(u32Width/2, CVI_IVE2_STRIDE_ALIGN);
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height + u32Stride2 * u32Height*2);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height + u32Stride2 * u32Height*2);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 			pstImage->au64VirAddr[1] = pstImage->au64VirAddr[0] + u32Stride * u32Height;
 			pstImage->au64VirAddr[2] = pstImage->au64VirAddr[1] + u32Stride2 * u32Height;
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
-			pstImage->au64PhyAddr[1] = (CVI_U64)pstImage->au64VirAddr[1];
-			pstImage->au64PhyAddr[2] = (CVI_U64)pstImage->au64VirAddr[2];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[1] = (uint64_t)pstImage->au64VirAddr[1];
+			pstImage->au64PhyAddr[2] = (uint64_t)pstImage->au64VirAddr[2];
 			pstImage->au32Stride[0]  = u32Stride;
 			pstImage->au32Stride[1]  = u32Stride2;
 			pstImage->au32Stride[2]  = pstImage->au32Stride[1];
@@ -149,14 +149,14 @@ CVI_S32 CVI_CreateIveImage(IVE_IMAGE_S *pstImage,IVE_IMAGE_TYPE_E enType, CVI_U3
 	case IVE_IMAGE_TYPE_YUV444P:
 		{
 			printf(" %d %d %d fff\n", u32Stride, u32Height, (u32Stride * u32Height * 3));
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height * 3);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height * 3);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 			printf(" %d %d %d eee\n", u32Stride, u32Height, (u32Stride * u32Height * 3));
 			pstImage->au64VirAddr[1] = pstImage->au64VirAddr[0] + 1;
 			pstImage->au64VirAddr[2] = pstImage->au64VirAddr[1] + 1;
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
-			pstImage->au64PhyAddr[1] = (CVI_U64)pstImage->au64VirAddr[1];
-			pstImage->au64PhyAddr[2] = (CVI_U64)pstImage->au64VirAddr[2];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[1] = (uint64_t)pstImage->au64VirAddr[1];
+			pstImage->au64PhyAddr[2] = (uint64_t)pstImage->au64VirAddr[2];
 
 			pstImage->au32Stride[0] = u32Stride;
 			pstImage->au32Stride[1] = pstImage->au32Stride[0];
@@ -165,24 +165,24 @@ CVI_S32 CVI_CreateIveImage(IVE_IMAGE_S *pstImage,IVE_IMAGE_TYPE_E enType, CVI_U3
 		break;
 	case IVE_IMAGE_TYPE_S8C2_PACKAGE:
 		{
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height * 2);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height * 2);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 
 			pstImage->au64VirAddr[1] = pstImage->au64VirAddr[0] + 1;
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
-			pstImage->au64PhyAddr[1] = (CVI_U64)pstImage->au64VirAddr[1];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[1] = (uint64_t)pstImage->au64VirAddr[1];
 			pstImage->au32Stride[0] = u32Stride;
 			pstImage->au32Stride[1]  = pstImage->au32Stride[0];
 		}
 		break;
 	case IVE_IMAGE_TYPE_S8C2_PLANAR:
 		{
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height * 2);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height * 2);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 
 			pstImage->au64VirAddr[1] = pstImage->au64VirAddr[0] + u32Stride * u32Height;
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
-			pstImage->au64PhyAddr[1] = (CVI_U64)pstImage->au64VirAddr[1];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[1] = (uint64_t)pstImage->au64VirAddr[1];
 			pstImage->au32Stride[0]  = u32Stride;
 			pstImage->au32Stride[1]  = pstImage->au32Stride[0];
 		}
@@ -190,23 +190,23 @@ CVI_S32 CVI_CreateIveImage(IVE_IMAGE_S *pstImage,IVE_IMAGE_TYPE_E enType, CVI_U3
 	case IVE_IMAGE_TYPE_S16C1:
 	case IVE_IMAGE_TYPE_U16C1:
 		{
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height * 2);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height * 2);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
 			pstImage->au32Stride[0] = u32Stride;
 		}
 		break;
 	case IVE_IMAGE_TYPE_U8C3_PACKAGE:
 		{
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height * 3);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height * 3);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 
 			pstImage->au64VirAddr[1] = pstImage->au64VirAddr[0] + 1;
 			pstImage->au64VirAddr[2] = pstImage->au64VirAddr[1] + 1;
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
-			pstImage->au64PhyAddr[1] = (CVI_U64)pstImage->au64VirAddr[1];
-			pstImage->au64PhyAddr[2] = (CVI_U64)pstImage->au64VirAddr[2];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[1] = (uint64_t)pstImage->au64VirAddr[1];
+			pstImage->au64PhyAddr[2] = (uint64_t)pstImage->au64VirAddr[2];
 			pstImage->au32Stride[0] = u32Stride;
 			pstImage->au32Stride[1] = pstImage->au32Stride[0];
 			pstImage->au32Stride[2] = pstImage->au32Stride[0];
@@ -214,16 +214,16 @@ CVI_S32 CVI_CreateIveImage(IVE_IMAGE_S *pstImage,IVE_IMAGE_TYPE_E enType, CVI_U3
 		break;
 	case IVE_IMAGE_TYPE_U8C3_PLANAR:
 		{
-			//pstImage->au64VirAddr[0] = (CVI_U64)aligned_malloc(16, u32Stride * u32Height * 3);
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height * 3);
+			//pstImage->au64VirAddr[0] = (uint64_t)aligned_malloc(16, u32Stride * u32Height * 3);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height * 3);
 			assert(pstImage->au64VirAddr[0] % 16 == 0);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 
 			pstImage->au64VirAddr[1] = pstImage->au64VirAddr[0] + u32Stride * u32Height;
 			pstImage->au64VirAddr[2] = pstImage->au64VirAddr[1] + u32Stride * u32Height;
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
-			pstImage->au64PhyAddr[1] = (CVI_U64)pstImage->au64VirAddr[1];
-			pstImage->au64PhyAddr[2] = (CVI_U64)pstImage->au64VirAddr[2];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[1] = (uint64_t)pstImage->au64VirAddr[1];
+			pstImage->au64PhyAddr[2] = (uint64_t)pstImage->au64VirAddr[2];
 			pstImage->au32Stride[0] = u32Stride;
 			pstImage->au32Stride[1] = pstImage->au32Stride[0];
 			pstImage->au32Stride[2] = pstImage->au32Stride[0];
@@ -232,20 +232,20 @@ CVI_S32 CVI_CreateIveImage(IVE_IMAGE_S *pstImage,IVE_IMAGE_TYPE_E enType, CVI_U3
 	case IVE_IMAGE_TYPE_S32C1:
 	case IVE_IMAGE_TYPE_U32C1:
 		{
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height * 4);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height * 4);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
 			pstImage->au32Stride[0] = u32Stride;
 		}
 		break;
 	case IVE_IMAGE_TYPE_S64C1:
 	case IVE_IMAGE_TYPE_U64C1:
 		{
-			pstImage->au64VirAddr[0] = (CVI_U64)malloc(u32Stride * u32Height * 8);
+			pstImage->au64VirAddr[0] = (uint64_t)malloc(u32Stride * u32Height * 8);
 			CVI_CHECK_ET_RET(pstImage->au64VirAddr[0],0,CVI_FAILURE);
 
-			pstImage->au64PhyAddr[0] = (CVI_U64)pstImage->au64VirAddr[0];
+			pstImage->au64PhyAddr[0] = (uint64_t)pstImage->au64VirAddr[0];
 			pstImage->au32Stride[0] = u32Stride;
 		}
 		break;
@@ -259,7 +259,7 @@ CVI_S32 CVI_CreateIveImage(IVE_IMAGE_S *pstImage,IVE_IMAGE_TYPE_E enType, CVI_U3
 	return s32Succ;
 }
 
-CVI_S32 CVI_DestroyIveImage(IVE_IMAGE_S *pstImage)
+int32_t CVI_DestroyIveImage(IVE_IMAGE_S *pstImage)
 {
 
 #if defined BOARD_FPGA || defined BOARD_ASIC
@@ -268,7 +268,7 @@ CVI_S32 CVI_DestroyIveImage(IVE_IMAGE_S *pstImage)
 	CVI_CHECK_ET_NULL_RET(pstImage,CVI_FAILURE);
 	if (0 != pstImage->au64VirAddr[0])
 	{
-		free((CVI_VOID*)pstImage->au64VirAddr[0]);
+		free((void*)pstImage->au64VirAddr[0]);
 		pstImage->au64VirAddr[0] = 0;
 	}
 #endif
@@ -276,15 +276,15 @@ CVI_S32 CVI_DestroyIveImage(IVE_IMAGE_S *pstImage)
 	return CVI_SUCCESS;
 }
 
-CVI_S32 comp(const CVI_VOID *a,const CVI_VOID *b)
+int32_t comp(const void *a,const void *b)
 {
-	return  *(CVI_U8 *)(*(CVI_U32 *)b) - *(CVI_U8 *)(*(CVI_U32 *)a);
+	return  *(uint8_t *)(*(uint32_t *)b) - *(uint8_t *)(*(uint32_t *)a);
 }
 
-static CVI_S32 find_first_diff_u8(const CVI_U8 *A, const CVI_U8 *B, CVI_S32 count)
+static int32_t find_first_diff_u8(const uint8_t *A, const uint8_t *B, int32_t count)
 {
-	CVI_S32 i;
-	CVI_S32 result = -1;
+	int32_t i;
+	int32_t result = -1;
 	for (i = 0; i < count; ++i) {
 		if (A[i] != B[i]) {
 			result = i;
@@ -294,9 +294,9 @@ static CVI_S32 find_first_diff_u8(const CVI_U8 *A, const CVI_U8 *B, CVI_S32 coun
 	return result;
 }
 
-void dump_data_u8(const CVI_U8 *data, CVI_S32 count, const CVI_CHAR *desc)
+void dump_data_u8(const uint8_t *data, int32_t count, const char *desc)
 {
-	CVI_S32 i;
+	int32_t i;
 	printf("%s\n", desc);
 	for (i = 0; i < count; ++i) {
 		printf("%02X ", data[i]);
@@ -311,10 +311,10 @@ void dump_data_u8(const CVI_U8 *data, CVI_S32 count, const CVI_CHAR *desc)
 	}
 }
 
-static CVI_S32 find_first_diff_u16(const CVI_U16 *A, const CVI_U16 *B, CVI_S32 count)
+static int32_t find_first_diff_u16(const uint16_t *A, const uint16_t *B, int32_t count)
 {
-	CVI_S32 i;
-	CVI_S32 result = -1;
+	int32_t i;
+	int32_t result = -1;
 	for (i = 0; i < count; ++i) {
 		if (A[i] != B[i]) {
 			result = i;
@@ -324,9 +324,9 @@ static CVI_S32 find_first_diff_u16(const CVI_U16 *A, const CVI_U16 *B, CVI_S32 c
 	return result;
 }
 
-void dump_data_u16(const CVI_U16 *data, CVI_S32 count, const CVI_CHAR *desc)
+void dump_data_u16(const uint16_t *data, int32_t count, const char *desc)
 {
-	CVI_S32 i;
+	int32_t i;
 	printf("%s\n", desc);
 	for (i = 0; i < count; ++i) {
 		printf("%04X ", data[i]);
@@ -341,10 +341,10 @@ void dump_data_u16(const CVI_U16 *data, CVI_S32 count, const CVI_CHAR *desc)
 	}
 }
 
-static CVI_S32 find_first_diff_u32(const CVI_U32 *A, const CVI_U32 *B, CVI_S32 count)
+static int32_t find_first_diff_u32(const uint32_t *A, const uint32_t *B, int32_t count)
 {
-	CVI_S32 i;
-	CVI_S32 result = -1;
+	int32_t i;
+	int32_t result = -1;
 	for (i = 0; i < count; ++i) {
 		if (A[i] != B[i]) {
 			result = i;
@@ -354,9 +354,9 @@ static CVI_S32 find_first_diff_u32(const CVI_U32 *A, const CVI_U32 *B, CVI_S32 c
 	return result;
 }
 
-void dump_data_u32(const CVI_U32 *data, CVI_S32 count, const CVI_CHAR *desc)
+void dump_data_u32(const uint32_t *data, int32_t count, const char *desc)
 {
-	CVI_S32 i;
+	int32_t i;
 	printf("%s\n", desc);
 	for (i = 0; i < count; ++i) {
 		printf("%08X ", data[i]);
@@ -371,10 +371,10 @@ void dump_data_u32(const CVI_U32 *data, CVI_S32 count, const CVI_CHAR *desc)
 	}
 }
 
-static CVI_S32 find_first_diff_u64(const CVI_U64 *A, const CVI_U64 *B, CVI_S32 count)
+static int32_t find_first_diff_u64(const uint64_t *A, const uint64_t *B, int32_t count)
 {
-	CVI_S32 i;
-	CVI_S32 result = -1;
+	int32_t i;
+	int32_t result = -1;
 	for (i = 0; i < count; ++i) {
 		if (A[i] != B[i]) {
 			result = i;
@@ -384,9 +384,9 @@ static CVI_S32 find_first_diff_u64(const CVI_U64 *A, const CVI_U64 *B, CVI_S32 c
 	return result;
 }
 
-void dump_data_u64(const CVI_U64 *data, CVI_S32 count, const CVI_CHAR *desc)
+void dump_data_u64(const uint64_t *data, int32_t count, const char *desc)
 {
-	CVI_S32 i;
+	int32_t i;
 	printf("%s\n", desc);
 	for (i = 0; i < count; ++i) {
 		printf("%016jX ", data[i]);
@@ -401,7 +401,7 @@ void dump_data_u64(const CVI_U64 *data, CVI_S32 count, const CVI_CHAR *desc)
 	}
 }
 
-CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
+int32_t CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const char *filepath)
 {
     if (pstImage == NULL || filepath == NULL) {
         printf("Invalid parameters\n");
@@ -415,8 +415,8 @@ CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
     }
 
     IVE_IMAGE_TYPE_E enType = pstImage->enType;
-    CVI_U32 u32Width = pstImage->u32Width;
-    CVI_U32 u32Height = pstImage->u32Height;
+    uint32_t u32Width = pstImage->u32Width;
+    uint32_t u32Height = pstImage->u32Height;
 
     size_t bytes_written = 0;
 
@@ -430,11 +430,11 @@ CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
         case IVE_IMAGE_TYPE_S64C1:
         case IVE_IMAGE_TYPE_U64C1:
         {
-            CVI_U8 *pData = (CVI_U8*)pstImage->au64VirAddr[0];
-            CVI_U32 stride = pstImage->au32Stride[0];
-            CVI_U32 height = u32Height;
+            uint8_t *pData = (uint8_t*)pstImage->au64VirAddr[0];
+            uint32_t stride = pstImage->au32Stride[0];
+            uint32_t height = u32Height;
 
-            for (CVI_U32 y = 0; y < height; y++) {
+            for (uint32_t y = 0; y < height; y++) {
                 bytes_written = fwrite(pData, 1, stride, fp);
                 if (bytes_written != stride) {
                     perror("File write error");
@@ -449,9 +449,9 @@ CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
         case IVE_IMAGE_TYPE_YUV420SP:
         {
             // Y 平面: w × h
-            CVI_U8 *pDataY = (CVI_U8*)pstImage->au64VirAddr[0];
-            CVI_U32 strideY = pstImage->au32Stride[0];
-            for (CVI_U32 y = 0; y < u32Height; y++) {
+            uint8_t *pDataY = (uint8_t*)pstImage->au64VirAddr[0];
+            uint32_t strideY = pstImage->au32Stride[0];
+            for (uint32_t y = 0; y < u32Height; y++) {
                 bytes_written = fwrite(pDataY, 1, strideY, fp);
                 if (bytes_written != strideY) {
                     perror("File write error");
@@ -462,11 +462,11 @@ CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
             }
 
             // UV 平面: w × h/2 (SP格式，UV交错，共用一个plane)
-            CVI_U8 *pDataUV = (CVI_U8*)pstImage->au64VirAddr[1];
-            CVI_U32 strideUV = pstImage->au32Stride[1];
-            CVI_U32 heightUV = u32Height / 2;
+            uint8_t *pDataUV = (uint8_t*)pstImage->au64VirAddr[1];
+            uint32_t strideUV = pstImage->au32Stride[1];
+            uint32_t heightUV = u32Height / 2;
 
-            for (CVI_U32 y = 0; y < heightUV; y++) {
+            for (uint32_t y = 0; y < heightUV; y++) {
                 bytes_written = fwrite(pDataUV, 1, strideUV, fp);
                 if (bytes_written != strideUV) {
                     perror("File write error");
@@ -481,9 +481,9 @@ CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
         case IVE_IMAGE_TYPE_YUV422SP:
         {
             // Y 平面: w × h
-            CVI_U8 *pDataY = (CVI_U8*)pstImage->au64VirAddr[0];
-            CVI_U32 strideY = pstImage->au32Stride[0];
-            for (CVI_U32 y = 0; y < u32Height; y++) {
+            uint8_t *pDataY = (uint8_t*)pstImage->au64VirAddr[0];
+            uint32_t strideY = pstImage->au32Stride[0];
+            for (uint32_t y = 0; y < u32Height; y++) {
                 bytes_written = fwrite(pDataY, 1, strideY, fp);
                 if (bytes_written != strideY) {
                     perror("File write error");
@@ -494,9 +494,9 @@ CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
             }
 
             // UV 平面: w × h (SP格式，UV交错，共用一个plane)
-            CVI_U8 *pDataUV = (CVI_U8*)pstImage->au64VirAddr[1];
-            CVI_U32 strideUV = pstImage->au32Stride[1];
-            for (CVI_U32 y = 0; y < u32Height; y++) {
+            uint8_t *pDataUV = (uint8_t*)pstImage->au64VirAddr[1];
+            uint32_t strideUV = pstImage->au32Stride[1];
+            for (uint32_t y = 0; y < u32Height; y++) {
                 bytes_written = fwrite(pDataUV, 1, strideUV, fp);
                 if (bytes_written != strideUV) {
                     perror("File write error");
@@ -511,9 +511,9 @@ CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
         case IVE_IMAGE_TYPE_YUV444P:
         {
             for (int plane = 0; plane < 3; plane++) {
-                CVI_U8 *pData = (CVI_U8*)pstImage->au64VirAddr[plane];
-                CVI_U32 stride = pstImage->au32Stride[plane];
-                for (CVI_U32 y = 0; y < u32Height; y++) {
+                uint8_t *pData = (uint8_t*)pstImage->au64VirAddr[plane];
+                uint32_t stride = pstImage->au32Stride[plane];
+                for (uint32_t y = 0; y < u32Height; y++) {
                     bytes_written = fwrite(pData, 1, stride, fp);
                     if (bytes_written != stride) {
                         perror("File write error");
@@ -528,9 +528,9 @@ CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
 
         case IVE_IMAGE_TYPE_U8C3_PACKAGE:
         {
-            CVI_U8 *pData = (CVI_U8*)pstImage->au64VirAddr[0];
-            CVI_U32 stride = pstImage->au32Stride[0];
-            for (CVI_U32 y = 0; y < u32Height; y++) {
+            uint8_t *pData = (uint8_t*)pstImage->au64VirAddr[0];
+            uint32_t stride = pstImage->au32Stride[0];
+            for (uint32_t y = 0; y < u32Height; y++) {
                 bytes_written = fwrite(pData, 1, stride, fp);
                 if (bytes_written != stride) {
                     perror("File write error");
@@ -545,9 +545,9 @@ CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
         case IVE_IMAGE_TYPE_U8C3_PLANAR:
         {
             for (int plane = 0; plane < 3; plane++) {
-                CVI_U8 *pData = (CVI_U8*)pstImage->au64VirAddr[plane];
-                CVI_U32 stride = pstImage->au32Stride[plane];
-                for (CVI_U32 y = 0; y < u32Height; y++) {
+                uint8_t *pData = (uint8_t*)pstImage->au64VirAddr[plane];
+                uint32_t stride = pstImage->au32Stride[plane];
+                for (uint32_t y = 0; y < u32Height; y++) {
                     bytes_written = fwrite(pData, 1, stride, fp);
                     if (bytes_written != stride) {
                         perror("File write error");
@@ -572,22 +572,22 @@ CVI_S32 CVI_SaveIveImageToBin(IVE_IMAGE_S *pstImage, const CVI_CHAR *filepath)
 }
 
 
-CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
+int32_t CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 {
-	CVI_U32 u32Stride;
-	CVI_S32 s32Succ;
+	uint32_t u32Stride;
+	int32_t s32Succ;
 	IVE_IMAGE_TYPE_E enType;
-	CVI_U32 u32Width;
-	CVI_U32 u32Height;
-	CVI_U8 *pData1;
-	CVI_U8 *pData2;
-	CVI_U16 *pData1_U16;
-	CVI_U16 *pData2_U16;
-	CVI_U32 *pData1_U32;
-	CVI_U32 *pData2_U32;
-	CVI_U64 *pData1_U64;
-	CVI_U64 *pData2_U64;
-	CVI_U16 y;
+	uint32_t u32Width;
+	uint32_t u32Height;
+	uint8_t *pData1;
+	uint8_t *pData2;
+	uint16_t *pData1_U16;
+	uint16_t *pData2_U16;
+	uint32_t *pData1_U32;
+	uint32_t *pData2_U32;
+	uint64_t *pData1_U64;
+	uint64_t *pData2_U64;
+	uint16_t y;
 	int n;
 
 	CVI_CHECK_ET_NULL_RET(pstImage1,CVI_FAILURE);
@@ -621,8 +621,8 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 	case IVE_IMAGE_TYPE_U8C1:
 	case IVE_IMAGE_TYPE_S8C1:
 		{
-			pData1 = (CVI_U8*)pstImage1->au64VirAddr[0];
-			pData2 = (CVI_U8*)pstImage2->au64VirAddr[0];
+			pData1 = (uint8_t*)pstImage1->au64VirAddr[0];
+			pData2 = (uint8_t*)pstImage2->au64VirAddr[0];
 			printf("compare A at %p, B at %p\n", pData1, pData2);
 			for (y = 0; y < u32Height; y++,pData1 += u32Stride,pData2 += u32Stride)
 			{
@@ -643,8 +643,8 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 		break;
 	case IVE_IMAGE_TYPE_YUV420SP:
 		{
-			pData1 = (CVI_U8*)pstImage1->au64VirAddr[0];
-			pData2 = (CVI_U8*)pstImage2->au64VirAddr[0];
+			pData1 = (uint8_t*)pstImage1->au64VirAddr[0];
+			pData2 = (uint8_t*)pstImage2->au64VirAddr[0];
 			for (y = 0; y < u32Height; y++,pData1 += u32Stride,pData2 += u32Stride)
 			{
 				n = memcmp(pData1,pData2,u32Width);
@@ -661,8 +661,8 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 				}
 			}
 
-			pData1 = (CVI_U8*)pstImage1->au64VirAddr[1];
-			pData2 = (CVI_U8*)pstImage2->au64VirAddr[1];
+			pData1 = (uint8_t*)pstImage1->au64VirAddr[1];
+			pData2 = (uint8_t*)pstImage2->au64VirAddr[1];
 			for (y = 0; y < u32Height / 2; y++,pData1 += u32Stride,pData2 += u32Stride)
 			{
 				n = memcmp(pData1,pData2,u32Width);
@@ -682,8 +682,8 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 		break;
 	case IVE_IMAGE_TYPE_YUV422SP:
 		{
-			pData1 = (CVI_U8*)pstImage1->au64VirAddr[0];
-			pData2 = (CVI_U8*)pstImage2->au64VirAddr[0];
+			pData1 = (uint8_t*)pstImage1->au64VirAddr[0];
+			pData2 = (uint8_t*)pstImage2->au64VirAddr[0];
 			for (y = 0; y < u32Height; y++,pData1 += u32Stride,pData2 += u32Stride)
 			{
 				n = memcmp(pData1,pData2,u32Width);
@@ -700,8 +700,8 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 				}
 			}
 
-			pData1 = (CVI_U8*)pstImage1->au64VirAddr[1];
-			pData2 = (CVI_U8*)pstImage2->au64VirAddr[1];
+			pData1 = (uint8_t*)pstImage1->au64VirAddr[1];
+			pData2 = (uint8_t*)pstImage2->au64VirAddr[1];
 			for (y = 0; y < u32Height; y++,pData1 += u32Stride,pData2 += u32Stride)
 			{
 				n = memcmp(pData1,pData2,u32Width);
@@ -721,8 +721,8 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 		break;
 	case IVE_IMAGE_TYPE_YUV444P:
 		{
-			pData1 = (CVI_U8*)pstImage1->au64VirAddr[0];
-			pData2 = (CVI_U8*)pstImage2->au64VirAddr[0];
+			pData1 = (uint8_t*)pstImage1->au64VirAddr[0];
+			pData2 = (uint8_t*)pstImage2->au64VirAddr[0];
 			for (y = 0; y < u32Height; y++, pData1 += u32Stride*3,pData2 += u32Stride*3)
 			{
 				n = memcmp(pData1,pData2,u32Width * 3);
@@ -751,8 +751,8 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 		break;
 	case IVE_IMAGE_TYPE_U8C3_PACKAGE:
 		{
-			pData1 = (CVI_U8*)pstImage1->au64VirAddr[0];
-			pData2 = (CVI_U8*)pstImage2->au64VirAddr[0];
+			pData1 = (uint8_t*)pstImage1->au64VirAddr[0];
+			pData2 = (uint8_t*)pstImage2->au64VirAddr[0];
 			for (y = 0; y < u32Height; y++, pData1 += u32Stride*3,pData2 += u32Stride*3)
 			{
 				n = memcmp(pData1,pData2,u32Width * 3);
@@ -774,8 +774,8 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 		{
 			for (int i = 0; i < 3; i++)
 			{
-				pData1 = (CVI_U8*)pstImage1->au64VirAddr[i];
-				pData2 = (CVI_U8*)pstImage2->au64VirAddr[i];
+				pData1 = (uint8_t*)pstImage1->au64VirAddr[i];
+				pData2 = (uint8_t*)pstImage2->au64VirAddr[i];
 				for (y = 0; y < u32Height; y++, pData1 += u32Stride,pData2 += u32Stride)
 				{
 				n = memcmp(pData1,pData2,u32Width);
@@ -797,15 +797,15 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 	case IVE_IMAGE_TYPE_S16C1:
 	case IVE_IMAGE_TYPE_U16C1:
 		{
-			pData1 = (CVI_U8*)pstImage1->au64VirAddr[0];
-			pData2 = (CVI_U8*)pstImage2->au64VirAddr[0];
+			pData1 = (uint8_t*)pstImage1->au64VirAddr[0];
+			pData2 = (uint8_t*)pstImage2->au64VirAddr[0];
 			for (y = 0; y < u32Height; y++,pData1 += u32Stride*2,pData2 += u32Stride*2)
 			{
 				n = memcmp(pData1,pData2,u32Width*2);
 				if (0 != n)
 				{
-					pData1_U16 = (CVI_U16*)pData1;
-					pData2_U16 = (CVI_U16*)pData2;
+					pData1_U16 = (uint16_t*)pData1;
+					pData2_U16 = (uint16_t*)pData2;
 					int idx = find_first_diff_u16(pData1_U16, pData2_U16, u32Width);
 					CVI_ASSERT(idx >= 0);
 					printf("Compare failed, at y = %d, x = %d, n = %d\n", y, idx, n);
@@ -821,15 +821,15 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 	case IVE_IMAGE_TYPE_S32C1:
 	case IVE_IMAGE_TYPE_U32C1:
 		{
-			pData1 = (CVI_U8*)pstImage1->au64VirAddr[0];
-			pData2 = (CVI_U8*)pstImage2->au64VirAddr[0];
+			pData1 = (uint8_t*)pstImage1->au64VirAddr[0];
+			pData2 = (uint8_t*)pstImage2->au64VirAddr[0];
 			for (y = 0; y < u32Height; y++,pData1 += u32Stride*4,pData2 += u32Stride*4)
 			{
 				n = memcmp(pData1,pData2,u32Width*4);
 				if (0 != n)
 				{
-					pData1_U32 = (CVI_U32*)pData1;
-					pData2_U32 = (CVI_U32*)pData2;
+					pData1_U32 = (uint32_t*)pData1;
+					pData2_U32 = (uint32_t*)pData2;
 					int idx = find_first_diff_u32(pData1_U32, pData2_U32, u32Width);
 					CVI_ASSERT(idx >= 0);
 					printf("Compare failed, at y = %d, x = %d, n = %d\n", y, idx, n);
@@ -845,15 +845,15 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 	case IVE_IMAGE_TYPE_S64C1:
 	case IVE_IMAGE_TYPE_U64C1:
 		{
-			pData1 = (CVI_U8*)pstImage1->au64VirAddr[0];
-			pData2 = (CVI_U8*)pstImage2->au64VirAddr[0];
+			pData1 = (uint8_t*)pstImage1->au64VirAddr[0];
+			pData2 = (uint8_t*)pstImage2->au64VirAddr[0];
 			for (y = 0; y < u32Height; y++,pData1 += u32Stride*8,pData2 += u32Stride*8)
 			{
 				n = memcmp(pData1,pData2,u32Width*8);
 				if (0 != n)
 				{
-					pData1_U64 = (CVI_U64*)pData1;
-					pData2_U64 = (CVI_U64*)pData2;
+					pData1_U64 = (uint64_t*)pData1;
+					pData2_U64 = (uint64_t*)pData2;
 					int idx = find_first_diff_u64(pData1_U64, pData2_U64, u32Width);
 					CVI_ASSERT(idx >= 0);
 					printf("Compare failed, at y = %d, x = %d, n = %d\n", y, idx, n);
@@ -877,15 +877,15 @@ CVI_S32 CVI_CompareIveImage(IVE_IMAGE_S *pstImage1,IVE_IMAGE_S *pstImage2)
 	return s32Succ;
 }
 
-CVI_S32 CVI_ResetIveImage(IVE_IMAGE_S *pstImage,CVI_U8 val)
+int32_t CVI_ResetIveImage(IVE_IMAGE_S *pstImage,uint8_t val)
 {
-	CVI_U32 u32Stride;
-	CVI_S32 s32Succ;
+	uint32_t u32Stride;
+	int32_t s32Succ;
 	IVE_IMAGE_TYPE_E enType;
-	CVI_U32 u32Width;
-	CVI_U32 u32Height;
-	CVI_U8 *pData;
-	CVI_U16 y;
+	uint32_t u32Width;
+	uint32_t u32Height;
+	uint8_t *pData;
+	uint16_t y;
 
 	CVI_CHECK_ET_NULL_RET(pstImage,CVI_FAILURE);
 
@@ -901,7 +901,7 @@ CVI_S32 CVI_ResetIveImage(IVE_IMAGE_S *pstImage,CVI_U8 val)
 	case IVE_IMAGE_TYPE_U8C1:
 	case IVE_IMAGE_TYPE_S8C1:
 		{
-			pData = (CVI_U8*)pstImage->au64VirAddr[0];
+			pData = (uint8_t*)pstImage->au64VirAddr[0];
 			for (y = 0; y < u32Height; y++,pData += u32Stride)
 			{
 				memset(pData,val,u32Width);
@@ -910,12 +910,12 @@ CVI_S32 CVI_ResetIveImage(IVE_IMAGE_S *pstImage,CVI_U8 val)
 		break;
 	case IVE_IMAGE_TYPE_YUV420SP:
 		{
-			pData = (CVI_U8*)pstImage->au64VirAddr[0];
+			pData = (uint8_t*)pstImage->au64VirAddr[0];
 			for (y = 0; y < u32Height; y++,pData += u32Stride)
 			{
 				memset(pData,val,u32Width);
 			}
-			pData = (CVI_U8*)pstImage->au64VirAddr[1];
+			pData = (uint8_t*)pstImage->au64VirAddr[1];
 			for (y = 0; y < u32Height / 2; y++,pData += u32Stride)
 			{
 				memset(pData,val,u32Width);
@@ -924,12 +924,12 @@ CVI_S32 CVI_ResetIveImage(IVE_IMAGE_S *pstImage,CVI_U8 val)
 		break;
 	case IVE_IMAGE_TYPE_YUV422SP:
 		{
-			pData = (CVI_U8*)pstImage->au64VirAddr[0];
+			pData = (uint8_t*)pstImage->au64VirAddr[0];
 			for (y = 0; y < u32Height; y++,pData += u32Stride)
 			{
 				memset(pData,val,u32Width);
 			}
-			pData = (CVI_U8*)pstImage->au64VirAddr[1];
+			pData = (uint8_t*)pstImage->au64VirAddr[1];
 			for (y = 0; y < u32Height; y++,pData += u32Stride)
 			{
 				memset(pData,val,u32Width);
@@ -949,7 +949,7 @@ CVI_S32 CVI_ResetIveImage(IVE_IMAGE_S *pstImage,CVI_U8 val)
 		break;
 	case IVE_IMAGE_TYPE_U8C3_PACKAGE:
 		{
-			pData = (CVI_U8*)pstImage->au64VirAddr[0];
+			pData = (uint8_t*)pstImage->au64VirAddr[0];
 			for (y = 0; y < pstImage->u32Height; y++, pData += pstImage->au32Stride[0] * 3)
 			{
 				memset(pData,val,pstImage->u32Width * 3);
@@ -960,7 +960,7 @@ CVI_S32 CVI_ResetIveImage(IVE_IMAGE_S *pstImage,CVI_U8 val)
 		{
 			for (int i = 0; i < 3; i++)
 			{
-				pData = (CVI_U8*)pstImage->au64VirAddr[i];
+				pData = (uint8_t*)pstImage->au64VirAddr[i];
 				for (y = 0; y < pstImage->u32Height; y++, pData += pstImage->au32Stride[i])
 				{
 					memset(pData,val,pstImage->u32Width);
@@ -988,12 +988,12 @@ CVI_S32 CVI_ResetIveImage(IVE_IMAGE_S *pstImage,CVI_U8 val)
 	return s32Succ;
 }
 
-CVI_S32 CVI_CompareIveMem(IVE_MEM_INFO_S *pstMem1,IVE_MEM_INFO_S *pstMem2)
+int32_t CVI_CompareIveMem(IVE_MEM_INFO_S *pstMem1,IVE_MEM_INFO_S *pstMem2)
 {
-	CVI_S32 s32Succ;
-	CVI_U32 u32Size;
-	CVI_U8 *pData1;
-	CVI_U8 *pData2;
+	int32_t s32Succ;
+	uint32_t u32Size;
+	uint8_t *pData1;
+	uint8_t *pData2;
 	int n;
 
 	CVI_CHECK_ET_NULL_RET(pstMem1,CVI_FAILURE);
@@ -1008,48 +1008,48 @@ CVI_S32 CVI_CompareIveMem(IVE_MEM_INFO_S *pstMem1,IVE_MEM_INFO_S *pstMem2)
 	u32Size = pstMem1->u32Size;
 	s32Succ = CVI_SUCCESS;
 
-	pData1 = (CVI_U8*)pstMem1->u64VirAddr;
-	pData2 = (CVI_U8*)pstMem2->u64VirAddr;
+	pData1 = (uint8_t*)pstMem1->u64VirAddr;
+	pData2 = (uint8_t*)pstMem2->u64VirAddr;
 	n = memcmp(pData1,pData2,u32Size);
 	if (0 != n)
 	{
-		int idx = find_first_diff_u8((CVI_U8*)pData1, (CVI_U8*)pData2, u32Size);
+		int idx = find_first_diff_u8((uint8_t*)pData1, (uint8_t*)pData2, u32Size);
 		CVI_ASSERT(idx >= 0);
 		printf("Compare failed, at idx = %d, n = %d\n", idx, n);
 		printf("  A = 0x%02X, B = 0x%02X\n", pData1[idx], pData2[idx]);
-		dump_data_u8((CVI_U8*)pData1, u32Size, "A");
-		dump_data_u8((CVI_U8*)pData2, u32Size, "B");
+		dump_data_u8((uint8_t*)pData1, u32Size, "A");
+		dump_data_u8((uint8_t*)pData2, u32Size, "B");
 		s32Succ = CVI_FAILURE;
 	}
 
 	return s32Succ;
 }
 
-CVI_S32 CVI_ResetIveMem(IVE_MEM_INFO_S *pstMem,CVI_U8 val)
+int32_t CVI_ResetIveMem(IVE_MEM_INFO_S *pstMem,uint8_t val)
 {
-	CVI_S32 s32Succ;
-	CVI_U32 u32Size;
-	CVI_U8 *pData;
+	int32_t s32Succ;
+	uint32_t u32Size;
+	uint8_t *pData;
 
 	CVI_CHECK_ET_NULL_RET(pstMem,CVI_FAILURE);
 
 	u32Size = pstMem->u32Size;
 	s32Succ = CVI_SUCCESS;
 
-	pData = (CVI_U8*)pstMem->u64VirAddr;
+	pData = (uint8_t*)pstMem->u64VirAddr;
 	memset(pData,val,u32Size);
 
 	return s32Succ;
 }
 
-CVI_S32 CVI_CompareIveData(IVE_DATA_S *pstData1,IVE_DATA_S *pstData2)
+int32_t CVI_CompareIveData(IVE_DATA_S *pstData1,IVE_DATA_S *pstData2)
 {
-	CVI_S32 s32Succ;
-	CVI_U32 u32Height;
-	CVI_U32 u32Width;
-	CVI_U8 *pData1;
-	CVI_U8 *pData2;
-	CVI_U16 y;
+	int32_t s32Succ;
+	uint32_t u32Height;
+	uint32_t u32Width;
+	uint8_t *pData1;
+	uint8_t *pData2;
+	uint16_t y;
 	int n;
 
 	CVI_CHECK_ET_NULL_RET(pstData1,CVI_FAILURE);
@@ -1070,19 +1070,19 @@ CVI_S32 CVI_CompareIveData(IVE_DATA_S *pstData1,IVE_DATA_S *pstData2)
 	u32Width = pstData1->u32Width;
 	s32Succ = CVI_SUCCESS;
 
-	pData1 = (CVI_U8*)pstData1->u64VirAddr;
-	pData2 = (CVI_U8*)pstData2->u64VirAddr;
+	pData1 = (uint8_t*)pstData1->u64VirAddr;
+	pData2 = (uint8_t*)pstData2->u64VirAddr;
 	for (y = 0; y < u32Height; y++,pData1 += pstData1->u32Stride,pData2 += pstData2->u32Stride)
 	{
 		n = memcmp(pData1,pData2,u32Width);
 		if (0 != n)
 		{
-			int idx = find_first_diff_u8((CVI_U8*)pData1, (CVI_U8*)pData2, u32Width);
+			int idx = find_first_diff_u8((uint8_t*)pData1, (uint8_t*)pData2, u32Width);
 			CVI_ASSERT(idx >= 0);
 			printf("Compare failed, at idx = %d, n = %d\n", idx, n);
 			printf("  A = 0x%02X, B = 0x%02X\n", pData1[idx], pData2[idx]);
-			dump_data_u8((CVI_U8*)pData1, u32Width, "A");
-			dump_data_u8((CVI_U8*)pData2, u32Width, "B");
+			dump_data_u8((uint8_t*)pData1, u32Width, "A");
+			dump_data_u8((uint8_t*)pData2, u32Width, "B");
 			s32Succ = CVI_FAILURE;
 			break;
 		}
@@ -1091,14 +1091,14 @@ CVI_S32 CVI_CompareIveData(IVE_DATA_S *pstData1,IVE_DATA_S *pstData2)
 	return s32Succ;
 }
 
-CVI_S64 CVI_GetTickCount(CVI_VOID)
+int64_t CVI_GetTickCount(void)
 {
-	CVI_S64 s32Tick = 0;
+	int64_t s32Tick = 0;
 
 #if defined WIN32 || defined _WIN32 || defined WINCE
 	LARGE_INTEGER counter;
 	QueryPerformanceCounter( &counter );
-	s32Tick = (CVI_S64)counter.QuadPart;
+	s32Tick = (int64_t)counter.QuadPart;
 #elif defined BOARD_FPGA  || defined BOARD_ASIC
     #include "timer.h"
     //s32Tick = timer_meter_get_ms();
@@ -1106,18 +1106,18 @@ CVI_S64 CVI_GetTickCount(CVI_VOID)
 #elif defined __linux || defined __linux__
 	struct timespec tp;
 	clock_gettime(CLOCK_MONOTONIC, &tp);
-	s32Tick =  (CVI_S64)tp.tv_sec*1000000000 + tp.tv_nsec;
+	s32Tick =  (int64_t)tp.tv_sec*1000000000 + tp.tv_nsec;
 #else
 	struct timeval tv;
 	struct timezone tz;
 	gettimeofday( &tv, &tz );
-	s32Tick =  (CVI_S64)tv.tv_sec*1000000 + tv.tv_usec;
+	s32Tick =  (int64_t)tv.tv_sec*1000000 + tv.tv_usec;
 #endif
 
 	return s32Tick;
 }
 
-CVI_DOUBLE CVI_GetTickFrequency(CVI_VOID)
+CVI_DOUBLE CVI_GetTickFrequency(void)
 {
 	CVI_DOUBLE dFre = 1.0;
 #if defined WIN32 || defined _WIN32 || defined WINCE
@@ -1134,9 +1134,9 @@ CVI_DOUBLE CVI_GetTickFrequency(CVI_VOID)
 
 }
 
-CVI_S32 CVI_GenRand(CVI_S32 s32Max,CVI_S32 s32Min)
+int32_t CVI_GenRand(int32_t s32Max,int32_t s32Min)
 {
-	CVI_S32 s32Result = 0;
+	int32_t s32Result = 0;
 
 	if (s32Min >= 0)
 	{

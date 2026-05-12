@@ -64,57 +64,58 @@ typedef enum _IVE_IMAGE_TYPE_E
 
 }IVE_IMAGE_TYPE_E;
 
-typedef struct _IVE_IMAGE_S
+typedef struct _COMMON_IMAGE_S
 {
-	CVI_U64  au64PhyAddr[3];
-	CVI_U64  au64VirAddr[3];
-	CVI_U32  au32Stride[3];
-	CVI_U32  u32Width;
-	CVI_U32  u32Height;
+	uint64_t  au64PhyAddr[3];
+	uint64_t  au64VirAddr[3];
+	uint32_t  au32Stride[3];
+	uint32_t  u32Width;
+	uint32_t  u32Height;
 	IVE_IMAGE_TYPE_E  enType;
-}IVE_IMAGE_S;
-typedef IVE_IMAGE_S IVE_SRC_IMAGE_S;
-typedef IVE_IMAGE_S IVE_DST_IMAGE_S;
+} COMMON_IMAGE_S;
+typedef COMMON_IMAGE_S IVE_IMAGE_S;
+typedef COMMON_IMAGE_S IVE_SRC_IMAGE_S;
+typedef COMMON_IMAGE_S IVE_DST_IMAGE_S;
 
 typedef struct _IVE_MEM_INFO_S
 {
-	CVI_U64  u64PhyAddr;
-	CVI_U64  u64VirAddr;
-	CVI_U32  u32Size;
+	uint64_t  u64PhyAddr;
+	uint64_t  u64VirAddr;
+	uint32_t  u32Size;
 }IVE_MEM_INFO_S;
 typedef IVE_MEM_INFO_S IVE_SRC_MEM_INFO_S;
 typedef IVE_MEM_INFO_S IVE_DST_MEM_INFO_S;
 
 typedef struct _IVE_DATA_S
 {
-	CVI_U64  u64PhyAddr;  /*Physical address of the data*/
-	CVI_U64  u64VirAddr;
+	uint64_t  u64PhyAddr;  /*Physical address of the data*/
+	uint64_t  u64VirAddr;
 
-	CVI_U32  u32Stride;   /*2D data stride by byte*/
-	CVI_U32  u32Width;    /*2D data width by byte*/
-	CVI_U32  u32Height;   /*2D data height*/
+	uint32_t  u32Stride;   /*2D data stride by byte*/
+	uint32_t  u32Width;    /*2D data width by byte*/
+	uint32_t  u32Height;   /*2D data height*/
 
-    CVI_U32 u32Reserved;
+    uint32_t u32Reserved;
 }IVE_DATA_S;
 typedef IVE_DATA_S IVE_SRC_DATA_S;
 typedef IVE_DATA_S IVE_DST_DATA_S;
 
 typedef union _IVE_8BIT_U
 {
-	CVI_S8 s8Val;
-	CVI_U8 u8Val;
+	int8_t s8Val;
+	uint8_t u8Val;
 }IVE_8BIT_U;
 
 typedef struct _IVE_POINT_U16_S
 {
-    CVI_U16 u16X;
-    CVI_U16 u16Y;
+    uint16_t u16X;
+    uint16_t u16Y;
 }IVE_POINT_U16_S;
 
 typedef struct _IVE_POINT_S16_S
 {
-	CVI_U16 s16X;
-	CVI_U16 s16Y;
+	uint16_t s16X;
+	uint16_t s16Y;
 }IVE_POINT_S16_S;
 
 typedef struct _IVE_POINT_S25Q7_S
@@ -125,33 +126,33 @@ typedef struct _IVE_POINT_S25Q7_S
 
 typedef struct _IVE_RECT_U16_S
 {
-    CVI_U16 u16X;
-    CVI_U16 u16Y;
-    CVI_U16 u16Width;
-    CVI_U16 u16Height;
+    uint16_t u16X;
+    uint16_t u16Y;
+    uint16_t u16Width;
+    uint16_t u16Height;
 }IVE_RECT_U16_S;
 
 typedef struct _IVE_STIT_MASK_U16_S
 {
-    CVI_U16 u16PX;
-    CVI_U16 u16PY;
-	CVI_U16 u16XL;
-	CVI_U16 u16XR;
-    CVI_U16 u16Width;
-    CVI_U16 u16Height;
-	CVI_U16 u16BlendInfo[20];
+    uint16_t u16PX;
+    uint16_t u16PY;
+	uint16_t u16XL;
+	uint16_t u16XR;
+    uint16_t u16Width;
+    uint16_t u16Height;
+	uint16_t u16BlendInfo[20];
 }IVE_STIT_MASK_U16_S;
 
 typedef struct _IVE_LOOK_UP_TABLE_S
 {
     IVE_MEM_INFO_S stTable;
-    CVI_U16 u16ElemNum;          /*LUT's elements number*/
+    uint16_t u16ElemNum;          /*LUT's elements number*/
 
-    CVI_U8 u8TabInPreci;
-    CVI_U8 u8TabOutNorm;
+    uint8_t u8TabInPreci;
+    uint8_t u8TabOutNorm;
 
-    CVI_S32 s32TabInLower;       /*LUT's original input lower limit*/
-    CVI_S32 s32TabInUpper;       /*LUT's original input upper limit*/
+    int32_t s32TabInLower;       /*LUT's original input lower limit*/
+    int32_t s32TabInUpper;       /*LUT's original input upper limit*/
 }IVE_LOOK_UP_TABLE_S;
 
 

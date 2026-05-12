@@ -4,20 +4,20 @@
 https://github.com/openhumanoids/opencv-pod/blob/master/opencv/modules/video/src/bgfg_gaussmix2.cpp
 */
 int CVI_HW_DetectGMMShadow(
-	CVI_U8 *pix_data, CVI_U8 *pstModel, CVI_U8 u8ModelNum, CVI_U8 IsU8C3, 
-	CVI_U16 u0q16BgRatio, CVI_U8 u0q8ShadowThr, CVI_U8 u8SnsFactor)
+	uint8_t *pix_data, uint8_t *pstModel, uint8_t u8ModelNum, uint8_t IsU8C3,
+	uint16_t u0q16BgRatio, uint8_t u0q8ShadowThr, uint8_t u8SnsFactor)
 {
-	CVI_U64 dist2a;
-	CVI_S32 dD;
-	CVI_U8  a, model_stride;
-	CVI_U32 c, i, j;
-	CVI_U32 nchannels;
-	CVI_U32 denominator;
-	CVI_U32 numerator;
-	CVI_U16 tWeight;
-	CVI_U8  mean[12];
-	CVI_U32 g_variance;
-	CVI_U16 g_weight;
+	uint64_t dist2a;
+	int32_t dD;
+	uint8_t  a, model_stride;
+	uint32_t c, i, j;
+	uint32_t nchannels;
+	uint32_t denominator;
+	uint32_t numerator;
+	uint16_t tWeight;
+	uint8_t  mean[12];
+	uint32_t g_variance;
+	uint16_t g_weight;
 
 	tWeight = 0;
 	if ( IsU8C3 )
@@ -37,26 +37,26 @@ int CVI_HW_DetectGMMShadow(
 		for ( j = 0; j < nchannels; ++j )
 		{
 			mean[j] = pstModel[2 * j + 3];
-			numerator += (CVI_U8)mean[j] * pix_data[j];
-			denominator += (CVI_U8)mean[j] * (CVI_U8)mean[j];
+			numerator += (uint8_t)mean[j] * pix_data[j];
+			denominator += (uint8_t)mean[j] * (uint8_t)mean[j];
 		}
 		if ( !denominator )
 			return 0;
 		if ( numerator <= denominator && numerator << 8 >= denominator * u0q8ShadowThr )
 		{
-			a = ((denominator >> 1) + 255 * (CVI_U64)numerator) / denominator;
+			a = ((denominator >> 1) + 255 * (uint64_t)numerator) / denominator;
 			dist2a = 0;
 			for ( c = 0; c < nchannels; ++c )
 			{
-				dD = (CVI_U8)mean[c] * a - (pix_data[c] << 8);
+				dD = (uint8_t)mean[c] * a - (pix_data[c] << 8);
 				if ( dD < 0 )
-					dD = (pix_data[c] << 8) - (CVI_U8)mean[c] * a;
+					dD = (pix_data[c] << 8) - (uint8_t)mean[c] * a;
 				dist2a += dD * dD;
 			}
 			g_variance = pstModel[2 * nchannels + 2]
 			             + (pstModel[2 * nchannels + 3] << 8)
 			             + (pstModel[2 * nchannels + 4] << 16);
-			if ( dist2a < (u8SnsFactor * (CVI_U64)g_variance * a * a) >> 8 )
+			if ( dist2a < (u8SnsFactor * (uint64_t)g_variance * a * a) >> 8 )
 				return 1;
 		}
 		g_weight = *pstModel + (pstModel[1] << 8);

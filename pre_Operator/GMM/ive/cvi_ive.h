@@ -26,16 +26,16 @@ typedef enum _IVE_DMA_MODE_E
 typedef struct _IVE_DMA_CTRL_S
 {
     IVE_DMA_MODE_E enMode;
-    CVI_U64 u64Val;		    /*Used in memset mode*/
-    CVI_U8 u8HorSegSize;		/*Used in interval-copy mode, every row was segmented by u8HorSegSize bytes, restricted in values of 2,3,4,8,16*/
-    CVI_U8 u8ElemSize; 		/*Used in interval-copy mode, the valid bytes copied in front of every segment in a valid row, w_ch 0<u8ElemSize<u8HorSegSize*/
-    CVI_U8 u8VerSegRows;		/*Used in interval-copy mode, copy one row in every u8VerSegRows*/
+    uint64_t u64Val;		    /*Used in memset mode*/
+    uint8_t u8HorSegSize;		/*Used in interval-copy mode, every row was segmented by u8HorSegSize bytes, restricted in values of 2,3,4,8,16*/
+    uint8_t u8ElemSize; 		/*Used in interval-copy mode, the valid bytes copied in front of every segment in a valid row, w_ch 0<u8ElemSize<u8HorSegSize*/
+    uint8_t u8VerSegRows;		/*Used in interval-copy mode, copy one row in every u8VerSegRows*/
 }IVE_DMA_CTRL_S;
 
 typedef struct _IVE_FILTER_CTRL_S
 {
-    CVI_S8 as8Mask[25];        /*Template parameter filter coefficient*/
-    CVI_U8 u8Norm;             /*Normalization parameter, by right s_ft*/
+    int8_t as8Mask[25];        /*Template parameter filter coefficient*/
+    uint8_t u8Norm;             /*Normalization parameter, by right s_ft*/
 }IVE_FILTER_CTRL_S;
 
 typedef enum _IVE_CSC_MODE_E
@@ -75,8 +75,8 @@ typedef struct _IVE_CSC_CTRL_S
 typedef struct _IVE_FILTER_AND_CSC_CTRL_S
 {
     IVE_CSC_MODE_E		enMode;			/*CSC working mode*/
-    CVI_S8				as8Mask[25];	/*Template parameter filter coefficient*/
-    CVI_U8				u8Norm;			/*Normalization parameter, by right s_ft*/
+    int8_t				as8Mask[25];	/*Template parameter filter coefficient*/
+    uint8_t				u8Norm;			/*Normalization parameter, by right s_ft*/
 }IVE_FILTER_AND_CSC_CTRL_S;
 
 typedef enum _IVE_SOBEL_OUT_CTRL_E
@@ -90,7 +90,7 @@ typedef enum _IVE_SOBEL_OUT_CTRL_E
 typedef struct _IVE_SOBEL_CTRL_S
 {
 	IVE_SOBEL_OUT_CTRL_E enOutCtrl; /*Output format*/
-    CVI_S8 as8Mask[25];			    /*Template parameter*/
+    int8_t as8Mask[25];			    /*Template parameter*/
 }IVE_SOBEL_CTRL_S;
 
 typedef enum _IVE_MAG_AND_ANG_OUT_CTRL_E
@@ -103,18 +103,18 @@ typedef enum _IVE_MAG_AND_ANG_OUT_CTRL_E
 typedef struct _IVE_MAG_AND_ANG_CTRL_S
 {
     IVE_MAG_AND_ANG_OUT_CTRL_E enOutCtrl;
-	CVI_U16 u16Thr;
-    CVI_S8  as8Mask[25];         /*Template parameter.*/
+	uint16_t u16Thr;
+    int8_t  as8Mask[25];         /*Template parameter.*/
 }IVE_MAG_AND_ANG_CTRL_S;
 
 typedef struct _IVE_DILATE_CTRL_S
 {
-    CVI_U8 au8Mask[25];         /*The template parameter value must be 0 or 255.*/
+    uint8_t au8Mask[25];         /*The template parameter value must be 0 or 255.*/
 }IVE_DILATE_CTRL_S;
 
 typedef struct _IVE_ERODE_CTRL_S
 {
-    CVI_U8 au8Mask[25];         /*The template parameter value must be 0 or 255.*/
+    uint8_t au8Mask[25];         /*The template parameter value must be 0 or 255.*/
 }IVE_ERODE_CTRL_S;
 
 typedef enum _IVE_THRESH_MODE_E
@@ -135,11 +135,11 @@ typedef enum _IVE_THRESH_MODE_E
 typedef struct _IVE_THRESH_CTRL_S
 {
     IVE_THRESH_MODE_E enMode;
-    CVI_U8 u8LowThr;			/*user-defined threshold,  0<=u8LowThr<=255 */
-	CVI_U8 u8HighThr;		/*user-defined threshold, if enMode<IVE_THRESH_MODE_MIN_MID_MAX, u8HighThr is not used, else 0<=u8LowThr<=u8HighThr<=255;*/
-    CVI_U8 u8MinVal;			/*Minimum value when tri-level thresholding*/
-    CVI_U8 u8MidVal;			/*Middle value when tri-level thresholding, if enMode<2, u32MidVal is not used; */
-	CVI_U8 u8MaxVal;			/*Maxmum value when tri-level thresholding*/
+    uint8_t u8LowThr;			/*user-defined threshold,  0<=u8LowThr<=255 */
+	uint8_t u8HighThr;		/*user-defined threshold, if enMode<IVE_THRESH_MODE_MIN_MID_MAX, u8HighThr is not used, else 0<=u8LowThr<=u8HighThr<=255;*/
+    uint8_t u8MinVal;			/*Minimum value when tri-level thresholding*/
+    uint8_t u8MidVal;			/*Middle value when tri-level thresholding, if enMode<2, u32MidVal is not used; */
+	uint8_t u8MaxVal;			/*Maxmum value when tri-level thresholding*/
 }IVE_THRESH_CTRL_S;
 
 typedef enum _IVE_SUB_MODE_E
@@ -180,8 +180,8 @@ typedef enum _IVE_THRESH_S16_MODE_E
 typedef struct _IVE_THRESH_S16_CTRL_S
 {
     IVE_THRESH_S16_MODE_E enMode;
-    CVI_S16 s16LowThr;		/*User-defined threshold*/
-    CVI_S16 s16HighThr;		/*User-defined threshold*/
+    int16_t s16LowThr;		/*User-defined threshold*/
+    int16_t s16HighThr;		/*User-defined threshold*/
     IVE_8BIT_U un8MinVal;	/*Minimum value when tri-level thresholding*/
     IVE_8BIT_U un8MidVal;	/*Middle value when tri-level thresholding*/
     IVE_8BIT_U un8MaxVal;	/*Maxmum value when tri-level thresholding*/
@@ -198,11 +198,11 @@ typedef enum _IVE_THRESH_U16_MODE_E
 typedef struct _IVE_THRESH_U16_CTRL_S
 {
     IVE_THRESH_U16_MODE_E enMode;
-    CVI_U16 u16LowThr;
-    CVI_U16 u16HighThr;
-    CVI_U8  u8MinVal;
-    CVI_U8  u8MidVal;
-    CVI_U8  u8MaxVal;
+    uint16_t u16LowThr;
+    uint16_t u16HighThr;
+    uint8_t  u8MinVal;
+    uint8_t  u8MidVal;
+    uint8_t  u8MaxVal;
 }IVE_THRESH_U16_CTRL_S;
 
 typedef enum _IVE_16BIT_TO_8BIT_MODE_E
@@ -218,9 +218,9 @@ typedef enum _IVE_16BIT_TO_8BIT_MODE_E
 typedef struct _IVE_16BIT_TO_8BIT_CTRL_S
 {
 	IVE_16BIT_TO_8BIT_MODE_E enMode;
- 	CVI_U16 u16Denominator;
-	CVI_U8  u8Numerator;
-	CVI_S8  s8Bias;
+ 	uint16_t u16Denominator;
+	uint8_t  u8Numerator;
+	int8_t  s8Bias;
 }IVE_16BIT_TO_8BIT_CTRL_S;
 
 typedef enum _IVE_ORD_STAT_FILTER_MODE_E
@@ -254,23 +254,23 @@ typedef struct _IVE_MAP_CTRL_S
 
 typedef struct _IVE_MAP_U8BIT_LUT_MEM_S
 {
-    CVI_U8  au8Map[IVE_MAP_NUM];
+    uint8_t  au8Map[IVE_MAP_NUM];
 }IVE_MAP_U8BIT_LUT_MEM_S;
 
 typedef struct _IVE_MAP_U16BIT_LUT_MEM_S
 {
-    CVI_U16  au16Map[IVE_MAP_NUM];
+    uint16_t  au16Map[IVE_MAP_NUM];
 }IVE_MAP_U16BIT_LUT_MEM_S;
 
 typedef struct _IVE_MAP_S16BIT_LUT_MEM_S
 {
-    CVI_S16  as16Map[IVE_MAP_NUM];
+    int16_t  as16Map[IVE_MAP_NUM];
 }IVE_MAP_S16BIT_LUT_MEM_S;
 
 typedef struct _IVE_EQUALIZE_HIST_CTRL_MEM_S
 {
-    CVI_U32 au32Hist[IVE_HIST_NUM];
-    CVI_U8  au8Map[IVE_MAP_NUM];
+    uint32_t au32Hist[IVE_HIST_NUM];
+    uint8_t  au8Map[IVE_MAP_NUM];
 }IVE_EQUALIZE_HIST_CTRL_MEM_S;
 
 typedef struct _IVE_EQUALIZE_HIST_CTRL_S
@@ -286,36 +286,36 @@ typedef struct _IVE_ADD_CTRL_S
 
 typedef struct _IVE_NCC_DST_MEM_S
 {
-    CVI_U64 u64Numerator;
-    CVI_U64 u64QuadSum1;
-    CVI_U64 u64QuadSum2;
-    CVI_U8  u8Reserved[8];
+    uint64_t u64Numerator;
+    uint64_t u64QuadSum1;
+    uint64_t u64QuadSum2;
+    uint8_t  u8Reserved[8];
 }IVE_NCC_DST_MEM_S;
 
 typedef struct _IVE_REGION_S
 {
-    CVI_U32 u32Area;			   /*Represented by the pixel number*/
-    CVI_U16 u16Left;            /*Circumscribed rectangle left border*/
-    CVI_U16 u16Right;           /*Circumscribed rectangle right border*/
-    CVI_U16 u16Top;             /*Circumscribed rectangle top border*/
-    CVI_U16 u16Bottom;          /*Circumscribed rectangle bottom border*/
+    uint32_t u32Area;			   /*Represented by the pixel number*/
+    uint16_t u16Left;            /*Circumscribed rectangle left border*/
+    uint16_t u16Right;           /*Circumscribed rectangle right border*/
+    uint16_t u16Top;             /*Circumscribed rectangle top border*/
+    uint16_t u16Bottom;          /*Circumscribed rectangle bottom border*/
 }IVE_REGION_S;
 
 // sync with RTL
 // typedef struct _IVE_REGION_S
 // {
-//     CVI_U16 u16Bottom;
-//     CVI_U16 u16Top;
-//     CVI_U16 u16Left;
-//     CVI_U16 u16Right;
-//     CVI_U32 u32Area;
+//     uint16_t u16Bottom;
+//     uint16_t u16Top;
+//     uint16_t u16Left;
+//     uint16_t u16Right;
+//     uint32_t u32Area;
 // }IVE_REGION_S;
 
 typedef struct _IVE_CCBLOB_S
 {
-    CVI_U16 u16CurAreaThr;                         /*Threshold of the result regions' area*/
-    CVI_S8  s8LabelStatus;                         /*-1: Labeled failed ; 0: Labeled successfully*/
-    CVI_U8  u8RegionNum;                           /*Number of valid region, non-continuous stored*/
+    uint16_t u16CurAreaThr;                         /*Threshold of the result regions' area*/
+    int8_t  s8LabelStatus;                         /*-1: Labeled failed ; 0: Labeled successfully*/
+    uint8_t  u8RegionNum;                           /*Number of valid region, non-continuous stored*/
     IVE_REGION_S astRegion[IVE_MAX_REGION_NUM];	  /*Valid regions with 'u32Area>0' and 'label = ArrayIndex+1'*/
 }IVE_CCBLOB_S;
 
@@ -330,8 +330,8 @@ typedef enum _IVE_CCL_MODE_E
 typedef struct _IVE_CCL_CTRL_S
 {
 	IVE_CCL_MODE_E enMode;	  /*Mode*/
-    CVI_U16 u16InitAreaThr;    /*Init threshold of region area*/
-    CVI_U16 u16Step;           /*Increase area step for once*/
+    uint16_t u16InitAreaThr;    /*Init threshold of region area*/
+    uint16_t u16Step;           /*Increase area step for once*/
 }IVE_CCL_CTRL_S;
 
 typedef struct _IVE_GMM_CTRL_S
@@ -343,7 +343,7 @@ typedef struct _IVE_GMM_CTRL_S
     CVI_U0Q16     u0q16BgRatio;			/*Background ratio*/
     CVI_U8Q8      u8q8VarThr;			/*Variance Threshold*/
     CVI_U0Q16     u0q16InitWeight;       /*Initial Weight*/
-    CVI_U8        u8ModelNum;            /*Model number: 3 or 5*/
+    uint8_t        u8ModelNum;            /*Model number: 3 or 5*/
 }IVE_GMM_CTRL_S;
 
 typedef enum _IVE_GMM2_SNS_FACTOR_MODE_E
@@ -366,31 +366,31 @@ typedef struct _IVE_GMM2_CTRL_S
 {
 	IVE_GMM2_SNS_FACTOR_MODE_E			enSnsFactorMode;		  /*Sensitivity factor mode*/
 	IVE_GMM2_LIFE_UPDATE_FACTOR_MODE_E	enLifeUpdateFactorMode;   /*Life update factor mode*/
-	CVI_U16								u16GlbLifeUpdateFactor;   /*Global life update factor (default: 4)*/
-	CVI_U16								u16LifeThr;               /*Life threshold (default: 5000)*/
-	CVI_U16								u16FreqInitVal;           /*Initial frequency (default: 20000)*/
-	CVI_U16								u16FreqReduFactor;        /*Frequency reduction factor (default: 0xFF00)*/
-	CVI_U16								u16FreqAddFactor;         /*Frequency adding factor (default: 0xEF)*/
-	CVI_U16								u16FreqThr;               /*Frequency threshold (default: 12000)*/
-	CVI_U16								u16VarRate;               /*Variation update rate (default: 1)*/
+	uint16_t								u16GlbLifeUpdateFactor;   /*Global life update factor (default: 4)*/
+	uint16_t								u16LifeThr;               /*Life threshold (default: 5000)*/
+	uint16_t								u16FreqInitVal;           /*Initial frequency (default: 20000)*/
+	uint16_t								u16FreqReduFactor;        /*Frequency reduction factor (default: 0xFF00)*/
+	uint16_t								u16FreqAddFactor;         /*Frequency adding factor (default: 0xEF)*/
+	uint16_t								u16FreqThr;               /*Frequency threshold (default: 12000)*/
+	uint16_t								u16VarRate;               /*Variation update rate (default: 1)*/
 	CVI_U9Q7								u9q7MaxVar;               /*Max variation (default: (16 * 16)<<7)*/
 	CVI_U9Q7								u9q7MinVar;               /*Min variation (default: ( 8 *  8)<<7)*/
-	CVI_U8								u8GlbSnsFactor;           /*Global sensitivity factor (default: 8)*/
-	CVI_U8								u8ModelNum;               /*Model number (range: 1~5, default: 3)*/
+	uint8_t								u8GlbSnsFactor;           /*Global sensitivity factor (default: 8)*/
+	uint8_t								u8ModelNum;               /*Model number (range: 1~5, default: 3)*/
 }IVE_GMM2_CTRL_S;
 
 typedef struct _IVE_CANNY_HYS_EDGE_CTRL_S
 {
     IVE_MEM_INFO_S stMem;
-    CVI_U16 u16LowThr;
-    CVI_U16 u16HighThr;
-    CVI_S8 as8Mask[25];
+    uint16_t u16LowThr;
+    uint16_t u16HighThr;
+    int8_t as8Mask[25];
 } IVE_CANNY_HYS_EDGE_CTRL_S;
 
 typedef struct _IVE_CANNY_STACK_SIZE_S
 {
-    CVI_U32 u32StackSize;   /*Stack size for output*/
-    CVI_U8 u8Reserved[12];  /*For 16 byte align*/
+    uint32_t u32StackSize;   /*Stack size for output*/
+    uint8_t u8Reserved[12];  /*For 16 byte align*/
 }IVE_CANNY_STACK_SIZE_S;
 
 typedef enum _IVE_LBP_CMP_MODE_E
@@ -420,8 +420,8 @@ typedef enum _IVE_NORM_GRAD_OUT_CTRL_E
 typedef struct _IVE_NORM_GRAD_CTRL_S
 {
 	IVE_NORM_GRAD_OUT_CTRL_E enOutCtrl;
-	CVI_S8 as8Mask[25];
-	CVI_U8 u8Norm;
+	int8_t as8Mask[25];
+	uint8_t u8Norm;
 }IVE_NORM_GRAD_CTRL_S;
 
 typedef enum _IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_E
@@ -437,17 +437,17 @@ typedef struct _IVE_LK_OPTICAL_FLOW_PYR_CTRL_S
 {
 	IVE_LK_OPTICAL_FLOW_PYR_OUT_MODE_E enOutMode;
     CVI_BOOL     bUseInitFlow;		/*where to use initial flow*/
-    CVI_U16	    u16PtsNum;		    /*Number of the feature points,<=500*/
-    CVI_U8       u8MaxLevel;         /*0<=u8MaxLevel<=3*/
+    uint16_t	    u16PtsNum;		    /*Number of the feature points,<=500*/
+    uint8_t       u8MaxLevel;         /*0<=u8MaxLevel<=3*/
     CVI_U0Q8     u0q8MinEigThr;		/*Minimum eigenvalue threshold*/
-    CVI_U8	    u8IterCnt;          /*Maximum iteration times, <=20*/
+    uint8_t	    u8IterCnt;          /*Maximum iteration times, <=20*/
     CVI_U0Q8     u0q8Eps;            /*Used for exit criteria: dx^2 + dy^2 < u0q8Eps */
 }IVE_LK_OPTICAL_FLOW_PYR_CTRL_S;
 
 typedef struct _IVE_ST_MAX_EIG_S
 {
-    CVI_U16 u16MaxEig;           /*S_-Tomasi second step output MaxEig*/
-    CVI_U8  u8Reserved[14];      /*For 16 byte align*/
+    uint16_t u16MaxEig;           /*S_-Tomasi second step output MaxEig*/
+    uint8_t  u8Reserved[14];      /*For 16 byte align*/
 }IVE_ST_MAX_EIG_S;
 
 typedef struct _IVE_ST_CANDI_CORNER_CTRL_S
@@ -458,14 +458,14 @@ typedef struct _IVE_ST_CANDI_CORNER_CTRL_S
 
 typedef struct _IVE_ST_CORNER_INFO_S
 {
-    CVI_U16 u16CornerNum;
+    uint16_t u16CornerNum;
     IVE_POINT_U16_S astCorner[IVE_ST_MAX_CORNER_NUM];
 }IVE_ST_CORNER_INFO_S;
 
 typedef struct _IVE_ST_CORNER_CTRL_S
 {
-	CVI_U16 u16MaxCornerNum;
-	CVI_U16 u16MinDist;
+	uint16_t u16MaxCornerNum;
+	uint16_t u16MinDist;
 }IVE_ST_CORNER_CTRL_S;
 
 typedef enum _IVE_GRAD_FG_MODE_E
@@ -479,38 +479,38 @@ typedef enum _IVE_GRAD_FG_MODE_E
 typedef struct _IVE_GRAD_FG_CTRL_S
 {
     IVE_GRAD_FG_MODE_E enMode;		/*Calculation mode*/
-    CVI_U16 u16EdwFactor;			/*Edge width adjustment factor (range: 500 to 2000; default: 1000)*/
-    CVI_U8 u8CrlCoefThr;				/*Gradient vector correlation coefficient threshold (ranges: 50 to 100; default: 80)*/
-    CVI_U8 u8MagCrlThr;				/*Gradient amplitude threshold (range: 0 to 20; default: 4)*/
-    CVI_U8 u8MinMagDiff;				/*Gradient magnitude difference threshold (range: 2 to 8; default: 2)*/
-    CVI_U8 u8NoiseVal;				/*Gradient amplitude noise threshold (range: 1 to 8; default: 1)*/
-    CVI_U8 u8EdwDark;				/*Black pixels enable flag (range: 0 (no), 1 (yes); default: 1)*/
+    uint16_t u16EdwFactor;			/*Edge width adjustment factor (range: 500 to 2000; default: 1000)*/
+    uint8_t u8CrlCoefThr;				/*Gradient vector correlation coefficient threshold (ranges: 50 to 100; default: 80)*/
+    uint8_t u8MagCrlThr;				/*Gradient amplitude threshold (range: 0 to 20; default: 4)*/
+    uint8_t u8MinMagDiff;				/*Gradient magnitude difference threshold (range: 2 to 8; default: 2)*/
+    uint8_t u8NoiseVal;				/*Gradient amplitude noise threshold (range: 1 to 8; default: 1)*/
+    uint8_t u8EdwDark;				/*Black pixels enable flag (range: 0 (no), 1 (yes); default: 1)*/
 }IVE_GRAD_FG_CTRL_S;
 
 typedef struct _IVE_CANDI_BG_PIX_S
 {
     CVI_U8Q4F4 u8q4f4Mean;			/*Candidate background grays value */
-    CVI_U16 u16StartTime;			/*Candidate Background start time */
-    CVI_U16 u16SumAccessTime;		/*Candidate Background cumulative access time */
-    CVI_U16 u16ShortKeepTime;		/*Candidate background short hold time*/
-    CVI_U8 u8ChgCond;				/*Time condition for candidate background into the changing state*/
-    CVI_U8 u8PotenBgLife;			/*Potential background cumulative access time */
+    uint16_t u16StartTime;			/*Candidate Background start time */
+    uint16_t u16SumAccessTime;		/*Candidate Background cumulative access time */
+    uint16_t u16ShortKeepTime;		/*Candidate background short hold time*/
+    uint8_t u8ChgCond;				/*Time condition for candidate background into the changing state*/
+    uint8_t u8PotenBgLife;			/*Potential background cumulative access time */
 }IVE_CANDI_BG_PIX_S;
 
 typedef struct _IVE_WORK_BG_PIX_S
 {
-    CVI_U8Q4F4 u8q4f4Mean;			/*0# background grays value */
-    CVI_U16 u16AccTime;				/*Background cumulative access time */
-    CVI_U8 u8PreGray;				/*Gray value of last pixel */
+    CVI_U8Q4F4  u8q4f4Mean;			/*0# background grays value */
+    uint16_t u16AccTime;				/*Background cumulative access time */
+    uint8_t u8PreGray;				/*Gray value of last pixel */
     CVI_U5Q3 u5q3DiffThr;			/*Differential threshold */
-    CVI_U8 u8AccFlag;				/*Background access flag */
-    CVI_U8 u8BgGray[3];				/*1# ~ 3# background grays value */
+    uint8_t u8AccFlag;				/*Background access flag */
+    uint8_t u8BgGray[3];				/*1# ~ 3# background grays value */
 }IVE_WORK_BG_PIX_S;
 
 typedef struct _IVE_BG_LIFE_S
 {
-    CVI_U8 u8WorkBgLife[3];			/*1# ~ 3# background vitality */
-    CVI_U8 u8CandiBgLife;			/*Candidate background vitality */
+    uint8_t u8WorkBgLife[3];			/*1# ~ 3# background vitality */
+    uint8_t u8CandiBgLife;			/*Candidate background vitality */
 }IVE_BG_LIFE_S;
 
 typedef struct _IVE_BG_MODEL_PIX_S
@@ -522,54 +522,54 @@ typedef struct _IVE_BG_MODEL_PIX_S
 
 typedef struct _IVE_FG_STAT_DATA_S
 {
-    CVI_U32 u32PixNum;
-    CVI_U32 u32SumLum;
-    CVI_U8  u8Reserved[8];
+    uint32_t u32PixNum;
+    uint32_t u32SumLum;
+    uint8_t  u8Reserved[8];
 }IVE_FG_STAT_DATA_S;
 
 typedef struct _IVE_BG_STAT_DATA_S
 {
-    CVI_U32 u32PixNum;
-    CVI_U32 u32SumLum;
-    CVI_U8  u8Reserved[8];
+    uint32_t u32PixNum;
+    uint32_t u32SumLum;
+    uint8_t  u8Reserved[8];
 }IVE_BG_STAT_DATA_S;
 
 typedef struct _IVE_MATCH_BG_MODEL_CTRL_S
 {
-    CVI_U32 u32CurFrmNum;		/*Current frame timestamp, in frame units */
-    CVI_U32 u32PreFrmNum;		/*Previous frame timestamp, in frame units */
-    CVI_U16 u16TimeThr;			/*Potential background replacement time threshold (range: 2 to 100 frames; default: 20) */
+    uint32_t u32CurFrmNum;		/*Current frame timestamp, in frame units */
+    uint32_t u32PreFrmNum;		/*Previous frame timestamp, in frame units */
+    uint16_t u16TimeThr;			/*Potential background replacement time threshold (range: 2 to 100 frames; default: 20) */
 
-    CVI_U8 u8DiffThrCrlCoef;		/*Correlation coefficients between differential threshold and gray value (range: 0 to 5; default: 0) */
-    CVI_U8 u8DiffMaxThr;			/*Maximum of background differential threshold (range: 3 to 15; default: 6) */
-    CVI_U8 u8DiffMinThr;			/*Minimum of background differential threshold (range: 3 to 15; default: 4) */
-    CVI_U8 u8DiffThrInc;			/*Dynamic Background differential threshold increment (range: 0 to 6; default: 0) */
-    CVI_U8 u8FastLearnRate;		/*Quick background learning rate (range: 0 to 4; default: 2) */
-    CVI_U8 u8DetChgRegion;		/*Whether to detect change region (range: 0 (no), 1 (yes); default: 0) */
+    uint8_t u8DiffThrCrlCoef;		/*Correlation coefficients between differential threshold and gray value (range: 0 to 5; default: 0) */
+    uint8_t u8DiffMaxThr;			/*Maximum of background differential threshold (range: 3 to 15; default: 6) */
+    uint8_t u8DiffMinThr;			/*Minimum of background differential threshold (range: 3 to 15; default: 4) */
+    uint8_t u8DiffThrInc;			/*Dynamic Background differential threshold increment (range: 0 to 6; default: 0) */
+    uint8_t u8FastLearnRate;		/*Quick background learning rate (range: 0 to 4; default: 2) */
+    uint8_t u8DetChgRegion;		/*Whether to detect change region (range: 0 (no), 1 (yes); default: 0) */
 }IVE_MATCH_BG_MODEL_CTRL_S;
 
 typedef struct _IVE_UPDATE_BG_MODEL_CTRL_S
 {
-    CVI_U32 u32CurFrmNum;			/*Current frame timestamp, in frame units */
-    CVI_U32 u32PreChkTime;			/*The last time when background status is checked */
-    CVI_U32 u32FrmChkPeriod;			/*Background status checking period (range: 0 to 2000 frames; default: 50) */
+    uint32_t u32CurFrmNum;			/*Current frame timestamp, in frame units */
+    uint32_t u32PreChkTime;			/*The last time when background status is checked */
+    uint32_t u32FrmChkPeriod;			/*Background status checking period (range: 0 to 2000 frames; default: 50) */
 
-    CVI_U32 u32InitMinTime;			/*Background initialization shortest time (range: 20 to 6000 frames; default: 100)*/
-    CVI_U32 u32StyBgMinBlendTime;	/*Steady background integration shortest time (range: 20 to 6000 frames; default: 200)*/
-    CVI_U32 u32StyBgMaxBlendTime;	/*Steady background integration longest time (range: 20 to 40000 frames; default: 1500)*/
-    CVI_U32 u32DynBgMinBlendTime;	/*Dynamic background integration shortest time (range: 0 to 6000 frames; default: 0)*/
-    CVI_U32 u32StaticDetMinTime;		/*Still detection shortest time (range: 20 to 6000 frames; default: 80)*/
-    CVI_U16 u16FgMaxFadeTime;		/*Foreground disappearing longest time (range: 1 to 255 seconds; default: 15)*/
-    CVI_U16 u16BgMaxFadeTime;		/*Background disappearing longest time (range: 1 to 255  seconds ; default: 60)*/
+    uint32_t u32InitMinTime;			/*Background initialization shortest time (range: 20 to 6000 frames; default: 100)*/
+    uint32_t u32StyBgMinBlendTime;	/*Steady background integration shortest time (range: 20 to 6000 frames; default: 200)*/
+    uint32_t u32StyBgMaxBlendTime;	/*Steady background integration longest time (range: 20 to 40000 frames; default: 1500)*/
+    uint32_t u32DynBgMinBlendTime;	/*Dynamic background integration shortest time (range: 0 to 6000 frames; default: 0)*/
+    uint32_t u32StaticDetMinTime;		/*Still detection shortest time (range: 20 to 6000 frames; default: 80)*/
+    uint16_t u16FgMaxFadeTime;		/*Foreground disappearing longest time (range: 1 to 255 seconds; default: 15)*/
+    uint16_t u16BgMaxFadeTime;		/*Background disappearing longest time (range: 1 to 255  seconds ; default: 60)*/
 
-    CVI_U8 u8StyBgAccTimeRateThr;	/*Steady background access time ratio threshold (range: 10 to 100; default: 80)*/
-    CVI_U8 u8ChgBgAccTimeRateThr;	/*Change background access time ratio threshold (range: 10 to 100; default: 60)*/
-    CVI_U8 u8DynBgAccTimeThr;		/*Dynamic background access time ratio threshold (range: 0 to 50; default: 0)*/
-    CVI_U8 u8DynBgDepth;				/*Dynamic background depth (range: 0 to 3; default: 3)*/
-    CVI_U8 u8BgEffStaRateThr;		/*Background state time ratio threshold when initializing (range: 90 to 100; default: 90)*/
+    uint8_t u8StyBgAccTimeRateThr;	/*Steady background access time ratio threshold (range: 10 to 100; default: 80)*/
+    uint8_t u8ChgBgAccTimeRateThr;	/*Change background access time ratio threshold (range: 10 to 100; default: 60)*/
+    uint8_t u8DynBgAccTimeThr;		/*Dynamic background access time ratio threshold (range: 0 to 50; default: 0)*/
+    uint8_t u8DynBgDepth;				/*Dynamic background depth (range: 0 to 3; default: 3)*/
+    uint8_t u8BgEffStaRateThr;		/*Background state time ratio threshold when initializing (range: 90 to 100; default: 90)*/
 
-    CVI_U8 u8AcceBgLearn;			/*Whether to accelerate background learning (range: 0 (no), 1 (yes); default: 0)*/
-    CVI_U8 u8DetChgRegion;			/*Whether to detect change region (range: 0 (no), 1 (yes); default: 0)*/
+    uint8_t u8AcceBgLearn;			/*Whether to accelerate background learning (range: 0 (no), 1 (yes); default: 0)*/
+    uint8_t u8DetChgRegion;			/*Whether to detect change region (range: 0 (no), 1 (yes); default: 0)*/
 } IVE_UPDATE_BG_MODEL_CTRL_S;
 
 typedef enum _IVE_ANN_MLP_ACTIV_FUNC_E
@@ -594,12 +594,12 @@ typedef struct _IVE_ANN_MLP_MODEL_S
     IVE_ANN_MLP_ACTIV_FUNC_E enActivFunc;
     IVE_ANN_MLP_ACCURATE_E   enAccurate;
     IVE_MEM_INFO_S stWeight;
-    CVI_U32 u32TotalWeightSize;
+    uint32_t u32TotalWeightSize;
 
-    CVI_U16 au16LayerCount[8];    /*8 layers, including input and output layer*/
-    CVI_U16 u16MaxCount;          /*MaxCount<=1024*/
-    CVI_U8 u8LayerNum;		     /*2<layerNum<=8*/
-    CVI_U8 u8Reserved;
+    uint16_t au16LayerCount[8];    /*8 layers, including input and output layer*/
+    uint16_t u16MaxCount;          /*MaxCount<=1024*/
+    uint8_t u8LayerNum;		     /*2<layerNum<=8*/
+    uint8_t u8Reserved;
 }IVE_ANN_MLP_MODEL_S;
 
 typedef enum _IVE_SVM_TYPE_E
@@ -627,11 +627,11 @@ typedef struct _IVE_SVM_MODEL_S
 
     IVE_MEM_INFO_S  stSv;       /*SV memory*/
     IVE_MEM_INFO_S  stDf;       /*Decision functions memory*/
-    CVI_U32 u32TotalDfSize;      /*All decision functions coef size in byte*/
+    uint32_t u32TotalDfSize;      /*All decision functions coef size in byte*/
 
-    CVI_U16 u16FeatureDim;
-    CVI_U16 u16SvTotal;
-    CVI_U8  u8ClassCount;
+    uint16_t u16FeatureDim;
+    uint16_t u16SvTotal;
+    uint8_t  u8ClassCount;
 }IVE_SVM_MODEL_S;
 
 typedef enum _IVE_SAD_MODE_E
@@ -658,9 +658,9 @@ typedef struct _IVE_SAD_CTRL_S
 {
 	IVE_SAD_MODE_E enMode;
 	IVE_SAD_OUT_CTRL_E enOutCtrl;
-	CVI_U16 u16Thr;				/*srcVal <= u16Thr, dstVal = minVal; srcVal > u16Thr, dstVal = maxVal.*/
-	CVI_U8 u8MinVal;				/*Min value*/
-	CVI_U8 u8MaxVal;				/*Max value*/
+	uint16_t u16Thr;				/*srcVal <= u16Thr, dstVal = minVal; srcVal > u16Thr, dstVal = maxVal.*/
+	uint8_t u8MinVal;				/*Min value*/
+	uint8_t u8MaxVal;				/*Max value*/
 }IVE_SAD_CTRL_S;
 
 typedef enum _IVE_RESIZE_MODE_E
@@ -675,7 +675,7 @@ typedef struct _IVE_RESIZE_CTRL_S
 {
 	IVE_RESIZE_MODE_E enMode;
     IVE_MEM_INFO_S stMem;
-	CVI_U16  u16Num;
+	uint16_t  u16Num;
 }IVE_RESIZE_CTRL_S;
 
 typedef enum _IVE_CNN_ACTIV_FUNC_E
@@ -701,22 +701,22 @@ typedef struct _IVE_CNN_CONV_POOLING_S
     IVE_CNN_ACTIV_FUNC_E enActivFunc; /*Type of activation function*/
     IVE_CNN_POOLING_E    enPooling;   /*Mode of pooling method*/
 
-	CVI_U8  u8FeatureMapNum;	    /*Number of feature maps*/
-    CVI_U8  u8KernelSize;		/*Kernel size, only support 3 currently*/
-    CVI_U8  u8ConvStep;			/*Convolution step, only support 1 currently*/
+	uint8_t  u8FeatureMapNum;	    /*Number of feature maps*/
+    uint8_t  u8KernelSize;		/*Kernel size, only support 3 currently*/
+    uint8_t  u8ConvStep;			/*Convolution step, only support 1 currently*/
 
-    CVI_U8  u8PoolSize;			/*Pooling size, only support 2 currently*/
-    CVI_U8  u8PoolStep;			/*Pooling step, only support 2 currently*/
-    CVI_U8  u8Reserved[3];
+    uint8_t  u8PoolSize;			/*Pooling size, only support 2 currently*/
+    uint8_t  u8PoolStep;			/*Pooling step, only support 2 currently*/
+    uint8_t  u8Reserved[3];
 
 }IVE_CNN_CONV_POOLING_S;
 
 typedef struct _IVE_CNN_FULL_CONNECT_S
 {
-    CVI_U16 au16LayerCnt[8];		/*Neuron number of every fully connected layers*/
-    CVI_U16 u16MaxCnt;			/*Max neuron number in all fully connected layers*/
-    CVI_U8 u8LayerNum;			/*Number of fully connected layer*/
-    CVI_U8 u8Reserved;
+    uint16_t au16LayerCnt[8];		/*Neuron number of every fully connected layers*/
+    uint16_t u16MaxCnt;			/*Max neuron number in all fully connected layers*/
+    uint8_t u8LayerNum;			/*Number of fully connected layer*/
+    uint8_t u8Reserved;
 }IVE_CNN_FULL_CONNECT_S;
 
 typedef struct _IVE_CNN_MODEL_S
@@ -725,32 +725,32 @@ typedef struct _IVE_CNN_MODEL_S
     IVE_CNN_FULL_CONNECT_S stFullConnect;   /*Fully connected layers info*/
 
     IVE_MEM_INFO_S stConvKernelBias;	    /*Conv-ReLU-Pooling layers' kernels and bias*/
-    CVI_U32 u32ConvKernelBiasSize;           /*Size of Conv-ReLU-Pooling layer' kernels and bias*/
+    uint32_t u32ConvKernelBiasSize;           /*Size of Conv-ReLU-Pooling layer' kernels and bias*/
 
     IVE_MEM_INFO_S stFCLWgtBias;		    /*Fully Connection Layers' weights and bias*/
-    CVI_U32 u32FCLWgtBiasSize;               /*Size of fully connection layers weights and bias*/
+    uint32_t u32FCLWgtBiasSize;               /*Size of fully connection layers weights and bias*/
 
-    CVI_U32 u32TotalMemSize;                 /*Total memory size of all kernels, weights, bias*/
+    uint32_t u32TotalMemSize;                 /*Total memory size of all kernels, weights, bias*/
 
     IVE_IMAGE_TYPE_E enType;		        /*Image type used for the CNN model*/
-    CVI_U32 u32Width;                        /*Image width used for the model*/
-    CVI_U32 u32Height;                       /*Image height used for the model*/
+    uint32_t u32Width;                        /*Image width used for the model*/
+    uint32_t u32Height;                       /*Image height used for the model*/
 
-	CVI_U16 u16ClassCount;                   /*Number of classes*/
-    CVI_U8  u8ConvPoolLayerNum;              /*Number of Conv-ReLU-Pooling layers*/
-    CVI_U8  u8Reserved;
+	uint16_t u16ClassCount;                   /*Number of classes*/
+    uint8_t  u8ConvPoolLayerNum;              /*Number of Conv-ReLU-Pooling layers*/
+    uint8_t  u8Reserved;
 }IVE_CNN_MODEL_S;
 
 typedef struct _IVE_CNN_CTRL_S
 {
 	IVE_MEM_INFO_S stMem;   /*Assist memory*/
-    CVI_U32 u32Num;			/*Input image number*/
+    uint32_t u32Num;			/*Input image number*/
 }IVE_CNN_CTRL_S;
 
 typedef struct _IVE_CNN_RESULT_S
 {
-    CVI_S32 s32ClassIdx;     /*The most possible index of the classification*/
-    CVI_S32 s32Confidence;   /*The confidence of the classification*/
+    int32_t s32ClassIdx;     /*The most possible index of the classification*/
+    int32_t s32Confidence;   /*The confidence of the classification*/
 }IVE_CNN_RESULT_S;
 
 typedef enum _IVE_BERNSEN_MODE_E
@@ -764,9 +764,9 @@ typedef enum _IVE_BERNSEN_MODE_E
 typedef struct _IVE_BERNSEN_CTRL_S
 {
     IVE_BERNSEN_MODE_E enMode;
-    CVI_U8 u8WinSize; /* 3x3 or 5x5 */
-    CVI_U8 u8Thr;
-    CVI_U8 u8ContrastThreshold; // compare with midgray
+    uint8_t u8WinSize; /* 3x3 or 5x5 */
+    uint8_t u8Thr;
+    uint8_t u8ContrastThreshold; // compare with midgray
 }IVE_BERNSEN_CTRL_S;
 
 

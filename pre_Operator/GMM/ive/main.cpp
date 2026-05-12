@@ -9,8 +9,8 @@
 
 int main( int argc, char* const* argv )
 {
-	CVI_S32 s32FinalResult = CVI_SUCCESS;
-	CVI_S32 s32Result;
+	int32_t s32FinalResult = CVI_SUCCESS;
+	int32_t s32Result;
 
 	int show = 1, compare = 1;
 	int c;
