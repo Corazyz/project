@@ -663,8 +663,10 @@ int32_t GMM_Sample_U8C1(int show, int compare)
 {
 	int32_t  s32Ret = CVI_SUCCESS;
 	int32_t s32CompareError = 0;
-	const char *pchAvi = "./data/avi/campus.avi";
-	const char *pchRes = "./data/avi/GMM_Sample_U8C1.avi";
+	// const char *pchAvi = "./data/avi/campus.avi";
+	// const char *pchRes = "./data/avi/GMM_Sample_U8C1.avi";
+    const char *pchAvi = "./data/avi/小区监控-src_hd_爱给网_aigei_com.mp4";
+    const char *pchRes = "./data/avi/GMM_Sample_U8C1.avi";
 
 	COMMON_IMAGE_S stCommImg, stCommFg, stCommBg;
 	COMMON_MEM_INFO_S stModel;
@@ -687,6 +689,7 @@ int32_t GMM_Sample_U8C1(int show, int compare)
 
 	u16Width  = cvWidth & (~1);
 	u16Height = cvHeight & (~1);
+    printf("width = %d, height = %d\n", u16Width, u16Height);
 
 	stCtrl.u0q16BgRatio		= 45875;
 	stCtrl.u0q16InitWeight	= 3277;
@@ -769,6 +772,27 @@ int32_t GMM_Sample_U8C1(int show, int compare)
             snprintf(filename, sizeof(filename), "./data/result/frame/frame_%06d.png", s32FrmCnt);
             createDirectory("./data/result/frame/");
             imwrite(filename, cvDispImg);
+        }
+
+        // Save first 35 decoded frames as raw file
+        if (s32FrmCnt < 35) {
+            FILE *rawFp = nullptr;
+            char rawFilename[256];
+            snprintf(rawFilename, sizeof(rawFilename), "./data/result/raw_frames.raw");
+            createDirectory("./data/result/");
+            if (s32FrmCnt == 0) {
+                rawFp = fopen(rawFilename, "wb");
+            } else {
+                rawFp = fopen(rawFilename, "ab");
+            }
+            if (rawFp) {
+                // Save raw BGR data (cvImg is the original decoded frame)
+                size_t written = fwrite(cvImg.data, 1, cvImg.total() * cvImg.elemSize(), rawFp);
+                if (written != cvImg.total() * cvImg.elemSize()) {
+                    printf("Warning: failed to write all raw data for frame %d\n", s32FrmCnt);
+                }
+                fclose(rawFp);
+            }
         }
 	}
 
