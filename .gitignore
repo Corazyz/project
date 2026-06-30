@@ -8,3 +8,18 @@ __pycache__/
 *[Ee]nv/
 *[Vv]irtual[Ee]nvironment/
 .ipynb_checkpoints/
+
+# Milvus deploy runtime data
+AI_project/milvus-deploy/etcd/data/
+AI_project/milvus-deploy/milvus/data/
+AI_project/milvus-deploy/milvus/logs/
+AI_project/milvus-deploy/minio/data/
+
+# Large zip archives
+*.zip
+
+# Secrets
+.env
+
+# OS files
+.DS_Store

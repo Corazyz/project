@@ -663,9 +663,8 @@ int32_t GMM_Sample_U8C1(int show, int compare)
 {
 	int32_t  s32Ret = CVI_SUCCESS;
 	int32_t s32CompareError = 0;
-	// const char *pchAvi = "./data/avi/campus.avi";
-	// const char *pchRes = "./data/avi/GMM_Sample_U8C1.avi";
-    const char *pchAvi = "./data/avi/小区监控-src_hd_爱给网_aigei_com.mp4";
+	const char *pchAvi = "./data/avi/campus.avi";
+    // const char *pchAvi = "./data/avi/小区监控-src_hd_爱给网_aigei_com.mp4";
     const char *pchRes = "./data/avi/GMM_Sample_U8C1.avi";
 
 	COMMON_IMAGE_S stCommImg, stCommFg, stCommBg;
@@ -775,10 +774,10 @@ int32_t GMM_Sample_U8C1(int show, int compare)
         }
 
         // Save first 35 decoded frames as raw file
-        if (s32FrmCnt < 35) {
+        if (s32FrmCnt < 1406) {
             FILE *rawFp = nullptr;
             char rawFilename[256];
-            snprintf(rawFilename, sizeof(rawFilename), "./data/result/raw_frames.raw");
+            snprintf(rawFilename, sizeof(rawFilename), "./data/result/raw_frames_352_288_1406.raw");
             createDirectory("./data/result/");
             if (s32FrmCnt == 0) {
                 rawFp = fopen(rawFilename, "wb");
@@ -786,9 +785,22 @@ int32_t GMM_Sample_U8C1(int show, int compare)
                 rawFp = fopen(rawFilename, "ab");
             }
             if (rawFp) {
-                // Save raw BGR data (cvImg is the original decoded frame)
-                size_t written = fwrite(cvImg.data, 1, cvImg.total() * cvImg.elemSize(), rawFp);
-                if (written != cvImg.total() * cvImg.elemSize()) {
+                // Align height to 64 by padding black pixels at bottom
+                // int alignedH = (cvImg.rows + 63) & ~63;
+                int alignedH = cvImg.rows;
+                cv::Mat alignedImg;
+                if (alignedH != cvImg.rows) {
+                    cv::Mat padded(alignedH, cvImg.cols, cvImg.type(), cv::Scalar(0, 0, 0));
+                    cvImg.copyTo(padded(cv::Rect(0, 0, cvImg.cols, cvImg.rows)));
+                    alignedImg = padded;
+                } else {
+                    alignedImg = cvImg;
+                }
+                cv::Mat rgbImg;
+                cv::cvtColor(alignedImg, rgbImg, cv::COLOR_BGR2RGB);
+                alignedImg = rgbImg;
+                size_t written = fwrite(alignedImg.data, 1, alignedImg.total() * alignedImg.elemSize(), rawFp);
+                if (written != alignedImg.total() * alignedImg.elemSize()) {
                     printf("Warning: failed to write all raw data for frame %d\n", s32FrmCnt);
                 }
                 fclose(rawFp);
